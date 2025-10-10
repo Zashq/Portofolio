@@ -216,8 +216,43 @@
     .contact-list a:hover {
       text-decoration: underline;
     }
+
+    /* --- Scroll Reveal Animation --- */
+    .cv-section,
+    .profile-card {
+      opacity: 0;
+      transform: translateY(60px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .cv-section.visible,
+    .profile-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
   </style>
 </head>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const observer = new IntersectionObserver(
+    entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.25 }
+  );
+
+  document.querySelectorAll('.cv-section, .profile-card').forEach(section => {
+    observer.observe(section);
+  });
+});
+</script>
+
 <body>
 
   <main id="app">
@@ -256,7 +291,7 @@
       </div>
 
       <div class="exp-item">
-        <p class="exp-title">IT Technician · Corporate Environment</p>
+        <p class="exp-title">IT Technician · Dürkopp Adler Romania</p>
         <p class="exp-meta">2018 – Present · Windows Server, Active Directory, UniFi</p>
         <ul class="exp-list">
           <li>Active Directory user and permission management, Group Policy maintenance.</li>
