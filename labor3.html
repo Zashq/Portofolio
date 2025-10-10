@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bootstrap 5</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    .highlight {
+      background-color: yellow;
+      font-weight: bold;
+      padding: 4px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="bg-light">
+
+<!-- Navigáció -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">LOGO</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu"
+      aria-controls="menu" aria-expanded="false" aria-label="Menü megnyitása">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="menu">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link active" href="#">Főoldal</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Kapcsolat</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Kártyarács -->
+<div class="container my-5">
+  <div class="row g-3">
+    <div class="col-md-4">
+      <div class="card h-100">
+        <img src="https://s3.amazonaws.com/www.explorersweb.com/wp-content/uploads/2022/12/16233943/IMG_3076-300x200.jpg" class="card-img-top" alt="hegy">
+        <div class="card-body">
+          <h5 class="card-title">Hegy</h5>
+          <p class="card-text">Hegység</p>
+          <a href="#" class="btn btn-primary">Megnyitás</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100">
+        <img src="https://www.hrblock.com/tax-center/wp-content/uploads/2020/03/michigan-state-taxes-300x200.jpg" class="card-img-top" alt="Kép 2">
+        <div class="card-body">
+          <h5 class="card-title">Michigan  állam</h5>
+          <p class="card-text">Michigan állam tábla</p>
+          <a href="#" class="btn btn-primary">Megnyitás</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100">
+        <img src="https://dep.nj.gov/wp-content/uploads/newsrel/bear-300x200.jpg" class="card-img-top" alt="Kép 3">
+        <div class="card-body">
+          <h5 class="card-title">Fekete medve</h5>
+          <p class="card-text">Fekete medve a vadonban</p>
+          <a href="#" class="btn btn-primary">Megnyitás</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Alert gomb -->
+<div class="container text-center mb-5">
+  <button id="showAlert" class="btn btn-success">Mutasd az alertet</button>
+  <div id="alertBox" class="mt-3"></div>
+</div>
+
+<!-- Modal gomb -->
+<div class="container text-center mb-5">
+  <button data-bs-toggle="modal" data-bs-target="#infoModal" id="openModal" class="btn btn-primary">
+    Részletek
+  </button>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="infoModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cím</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Modal tartalma</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Bezárás</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Kapcsolat űrlap -->
+<div class="container my-5">
+  <h3 class="mb-3">Kapcsolatfelvétel</h3>
+  <form id="contactForm" class="p-3 border bg-white rounded">
+    <input id="name" class="form-control mb-2" placeholder="Név" required>
+    <input id="email" type="email" class="form-control mb-2" placeholder="Email" required>
+    <textarea id="msg" class="form-control mb-2" placeholder="Üzenet"></textarea>
+    <button class="btn btn-success">Küldés</button>
+  </form>
+  <div id="thanks" class="mt-2 text-success fw-bold"></div>
+</div>
+
+
+<div class="container my-5">
+  <h3>jQuery mini feladatok</h3>
+
+  <div class="my-3">
+    <p id="para">Eredeti szöveg</p>
+    <button id="btnText" class="btn btn-primary">Szöveg megváltoztatása</button>
+  </div>
+
+  <hr>
+
+  <div class="my-3">
+    <div id="box" class="p-3 border rounded">Ez egy doboz.</div>
+    <button id="btnToggle" class="btn btn-warning mt-2">Highlight váltás</button>
+  </div>
+
+  <hr>
+
+  <div class="my-3">
+    <button id="btnAjax" class="btn btn-success">AJAX kérés küldése</button>
+    <pre id="result" class="bg-dark text-light p-3 mt-3 rounded" style="min-height:150px;"></pre>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script>
+  $('#showAlert').on('click', function() {
+    $('#alertBox').empty();
+    const alert = $(`
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>Siker!</strong> Ez egy dinamikusan létrehozott alert üzenet.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Bezárás"></button>
+      </div>
+    `);
+    $('#alertBox').append(alert);
+  });
+
+
+  $('#infoModal').on('show.bs.modal', function(){
+    $('.modal-title').text('Frissített modal cím');
+    $('.modal-body p').text('Tartalom betöltve jQuery-ből.');
+  });
+
+
+  $('#contactForm').on('submit', function(e){
+    e.preventDefault();
+    const nev = $('#name').val().trim();
+
+    if (nev === '') {
+      $('#thanks').removeClass('text-success').addClass('text-danger').text('Kérlek, add meg a neved!');
+      return;
+    }
+
+    $('#thanks').removeClass('text-danger').addClass('text-success')
+                .text(`Köszönjük, ${nev}! Üzenetedet rögzítettük.`);
+    $('#contactForm')[0].reset();
+  });
+
+
+  $('#btnText').on('click', function(){
+    $('#para').text('JQuerry szöveg!');
+  });
+
+
+  $('#btnToggle').on('click', function(){
+    $('#box').toggleClass('highlight');
+  });
+
+
+  $('#btnAjax').on('click', function(){
+    $.get('https://httpbin.org/get', function(data){
+      $('#result').text(JSON.stringify(data, null, 2));
+    }).fail(function(){
+      $('#result').text('Hiba történt a lekérés során.');
+    });
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
