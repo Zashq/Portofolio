@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="hu">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portfólió – Profilkártya + CV</title>
+  <title>Portfolio – Profile Card + CV</title>
   <link rel="stylesheet" href="style.css">
   <style>
     body {
@@ -37,7 +37,7 @@
       .avatar{ width: 120px; height: 120px; }
     }
 
-    /* --- CV cardok --- */
+    /* --- CV kártyák --- */
     .cv-section {
       background: #11161d;
       border: 1px solid #1f2937;
@@ -64,7 +64,7 @@
     .chip{display:inline-block;margin:4px 6px 0 0;padding:6px 10px;border:1px solid #1f2937;border-radius:999px;background:rgba(255,255,255,.03);font-size:12px}
     .chips{ display:flex; flex-wrap: wrap; }
 
-    /* --- Linklista --- */
+    /* --- Kapcsolat --- */
     .contact-list { list-style: none; padding: 0; margin: 8px 0 0; }
     .contact-list li { margin: 6px 0; }
     .contact-list a { color: #e6e9ef; text-decoration: none; }
@@ -74,12 +74,12 @@
 <body>
 
   <main id="app">
-    <!-- Profilkártya -->
+    <!-- Profil kártya -->
     <section class="profile-card">
-      <img class="avatar" src="zalan.jpg" alt="Profilkép"
+      <img class="avatar" src="zalan.jpg" alt="Profile Picture">
       <div class="meta">
-        <h1 class="name">Vészi Zalán</h1>
-        <p class="role">Egyetemi hallgató · Informatika</p>
+        <h1 class="name">Zalán Vészi</h1>
+        <p class="role">University Student / IT Tehnician</p>
         <div class="links">
           <a href="mailto:te@pelda.hu">Email</a> ·
           <a href="https://linkedin.com/in/te" target="_blank" rel="noopener">LinkedIn</a> ·
@@ -88,47 +88,51 @@
       </div>
     </section>
 
-    <!-- BEMUTATKOZÁS -->
-    <section class="cv-section" id="bemutatkozas">
-      <h2>Bemutatkozás</h2>
-      <p>Motivált informatikai hallgató vagyok, aki valós projektekben gondolkodik: Flutter mobilappok, Java asztali és C# .NET alkalmazások. Célom, hogy stabil alapokkal és tiszta kóddal szállítsak mérhető értéket.</p>
+    <!-- Rólam -->
+    <section class="cv-section" id="about">
+      <h2>About Me</h2>
+      <p>I am a motivated computer science student who focuses on real-world projects: Flutter mobile apps, Java desktop software, and C# .NET applications. My goal is to deliver measurable value through solid foundations and clean code.</p>
     </section>
 
-    <!-- TAPASZTALAT -->
-    <section class="cv-section" id="tapasztalat">
-      <h2>Tapasztalat</h2>
+    <!-- Tapasztalat -->
+    <section class="cv-section" id="experience">
+      <h2>Experience</h2>
 
       <div class="exp-item">
-        <p class="exp-title">IT Technikus · Nagyvállalati környezet</p>
-        <p class="exp-meta">2018 – jelenleg · Windows Server, AD, UniFi</p>
+        <p class="exp-title">IT Technician · Corporate Environment</p>
+        <p class="exp-meta">2018 – Present · Windows Server, Active Directory, UniFi</p>
         <ul class="exp-list">
-          <li>AD felhasználó- és jogosultságkezelés, GPO-k karbantartása.</li>
-          <li>Hálózati hibajavítás (UniFi USG, IDS/IPS, VLAN-ok), Pi-hole DNS szűrés.</li>
-          <li>Üzemeltetési dokumentáció és tudásbázis készítése.</li>
+          <li>Active Directory user and permission management, Group Policy maintenance.</li>
+          <li>Network troubleshooting (UniFi USG, IDS/IPS, VLANs), Pi-hole DNS filtering.</li>
+          <li>Prepared operation documentation and knowledge base entries.</li>
         </ul>
       </div>
 
       <div class="exp-item">
-        <p class="exp-title">Full-stack hallgatói projektek</p>
-        <p class="exp-meta">2023 – jelenleg · Flutter, Java, C#</p>
+        <p class="exp-title">Full-stack Student Projects</p>
+        <p class="exp-meta">2023 – Present · Flutter, Java, C#</p>
         <ul class="exp-list">
-          <li>Meditation app: Flutter + Provider, REST API, két lejátszó képernyő (világos/sötét).</li>
-          <li>PartPicker rendszer: MySQL normalizált séma, AI-alapú komponensjavaslat.</li>
-          <li>Car rental: Java Swing GUI + saját kivételek, több nézet, adatmodell.</li>
+          <li>Meditation App: Flutter + Provider, REST API, dual theme music player screens.</li>
+          <li>PartPicker System: MySQL normalized schema, AI-based component suggestions.</li>
+          <li>Car Rental: Java Swing GUI + custom exceptions, multiple views, data model.</li>
         </ul>
       </div>
     </section>
 
-    <!-- OKTATÁS -->
-    <section class="cv-section" id="oktatas">
-      <h2>Oktatás</h2>
-      <p><strong>UMFST – Informatika (BSc)</strong> · 2022 – jelenleg</p>
-      <p>Fókusz: algoritmusok, operációs rendszerek, adatbázis-tervezés, hálózatok.</p>
+    <!-- Oktatás -->
+    <section class="cv-section" id="education">
+      <h2>Education</h2>
+      <p><strong>University of Medicine, Pharmacy, Science and Technology "G.E. Palade" of Târgu Mureș <br>- Computer Science</strong></p>
+      <p> 2022 – Present<br>Focus areas: Algorithms, Operating Systems, Database Design, Computer Networks.<br><br></p>
+
+      <p><strong>Gheorghe Șincai Technological High School<br>- Automotive Electrical & Electronics Technician</strong></p>
+      <p> 2014 – 2018<br>Focus areas: Mathematics, Technical Education, Electrical Systems, and Automotive Electronics.</p>
+      
     </section>
 
-    <!-- KÉZSÉGEK (chip-szerű címkék) -->
-    <section class="cv-section" id="keszsegek">
-      <h2>Készségek</h2>
+    <!-- Skillek -->
+    <section class="cv-section" id="skills">
+      <h2>Skills</h2>
       <div class="chips">
         <span class="chip">Flutter</span>
         <span class="chip">Dart</span>
@@ -142,13 +146,13 @@
       </div>
     </section>
 
-    <!-- KAPCSOLAT -->
-    <section class="cv-section" id="kapcsolat">
-      <h2>Kapcsolat</h2>
+    <!-- Kapcsolat -->
+    <section class="cv-section" id="contact">
+      <h2>Contact</h2>
       <ul class="contact-list">
         <li>📧 <a href="mailto:zalan.veszi@gmail.com">zalan.veszi@gmail.com</a></li>
         <li>🔗 <a href="https://www.linkedin.com/in/zalan-veszi-711294240" target="_blank" rel="noopener">LinkedIn</a></li>
-        <li>💻 <a href="https://github.com/Zashq" target="_blank" rel="noopener">GitHub</li>
+        <li>💻 <a href="https://github.com/Zashq" target="_blank" rel="noopener">GitHub</a></li>
       </ul>
     </section>
 
