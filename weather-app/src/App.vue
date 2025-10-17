@@ -37,14 +37,14 @@ async function search(city) {
   </main>
 </template>
 
-<!-- Komponensre vonatkozó stílusok -->
+
 <style scoped>
 .wrap {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;    /* vertikális közép */
-  align-items: center;        /* horizontális közép */
+  justify-content: center;    
+  align-items: center;     
   text-align: center;
   gap: 1rem;
   padding: 1rem;
@@ -55,11 +55,10 @@ h1 { margin-bottom: 1rem; }
 
 .content {
   width: 100%;
-  max-width: 520px;           /* picit nagyobb, hogy a kártya lélegezzen */
+  max-width: 520px;        
 }
 </style>
 
-<!-- GLOBÁL stílus (nem scoped!), itt lehet body/html -->
 <style>
 html, body {
   height: 100%;
@@ -70,8 +69,4 @@ body {
   background: #f4f6f8;
 }
 
-/* Opcionális: dark mode támogatás */
-@media (prefers-color-scheme: dark) {
-  body { background: #0f1216; color: #e7eaee; }
-}
 </style>
