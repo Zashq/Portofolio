@@ -18,8 +18,20 @@ function onSubmit() {
 </script>
 
 <style scoped>
-.row { display:flex; gap:8px; }
-input { flex:1; padding:10px 12px; border:1px solid #e5e7eb; border-radius:12px; }
-button { padding:10px 14px; border-radius:12px; background:#111827; color:#fff; border:0; }
-button:disabled { opacity:.5; }
+.row{ display:flex; gap:10px; width:100%; }
+input{
+  flex:1; min-width:0;
+  padding:12px 14px; border-radius:12px;
+  border:1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color:#e7ecf5; outline:none;
+}
+button{
+  padding:12px 16px; border-radius:12px; border:0;
+  background: linear-gradient(135deg,#2563eb,#06b6d4);
+  color:#fff; font-weight:600; cursor:pointer;
+}
+button:disabled{ opacity:.55; cursor:not-allowed; }
 </style>
+
+
