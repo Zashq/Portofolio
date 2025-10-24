@@ -75,7 +75,7 @@
   justify-content: center;
   padding: 20px;
   box-sizing: border-box;
-  background: linear-gradient(180deg, #f7fafc 0%, #f0f4f8 100%);
+  background: #ffffff; /* match page background to remove grey around card */
 }
 
 .quiz-card {
