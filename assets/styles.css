@@ -3,18 +3,25 @@ body {
   font-family: 'Segoe UI', Roboto, sans-serif;
   background: #0b0f14;
   color: #e6e9ef;
+  overflow-x: hidden;
 }
 
 main {
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 24px;
-  justify-items: center;
   padding: 32px 16px 64px;
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
 }
 
 .profile-card,
 .cv-section {
-  width: min(100%, 720px);
+  width: 100%;
+  max-width: 720px;
+  box-sizing: border-box;
 }
 
 /* --- Profile Card --- */
@@ -203,15 +210,38 @@ main {
 /* --- Certificates Slider --- */
 .certificates-slider {
   position: relative;
-  overflow: hidden;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: hidden;
   padding: 20px 0;
   cursor: grab;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(59, 130, 246, 0.3) transparent;
+}
+
+.certificates-slider::-webkit-scrollbar {
+  height: 6px;
+}
+
+.certificates-slider::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.certificates-slider::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.3);
+  border-radius: 3px;
+}
+
+.certificates-slider::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.5);
 }
 
 .certificates-track {
   display: flex;
   gap: 15px;
-  transition: transform 0.5s ease;
+  width: max-content;
   user-select: none;
 }
 
@@ -221,6 +251,7 @@ main {
 
 .certificate-card {
   min-width: 280px;
+  flex-shrink: 0;
   background: linear-gradient(
     135deg,
     rgba(59, 130, 246, 0.1) 0%,
@@ -233,6 +264,7 @@ main {
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .certificate-card::before {
@@ -581,6 +613,22 @@ main {
 
 /* --- Mobile Adjustments --- */
 @media (max-width: 600px) {
+  main {
+    padding: 24px 12px 64px;
+  }
+
+  .profile-card,
+  .cv-section {
+    width: calc(100% - 24px);
+    margin: 0 12px;
+  }
+
+  .certificates-slider {
+    margin: 0 -12px;
+    padding: 20px 12px;
+    width: calc(100% + 24px);
+  }
+
   .certificates-track {
     gap: 12px;
   }
@@ -599,6 +647,8 @@ main {
 
   .modal-content {
     padding: 24px;
+    width: calc(100% - 32px);
+    margin: 0 16px;
   }
 
   .modal-title {
@@ -706,4 +756,3 @@ main {
 .cert-icon:hover img {
   transform: scale(1.1);
 }
-
