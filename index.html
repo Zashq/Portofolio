@@ -213,12 +213,22 @@
       position: relative;
       overflow: hidden;
       padding: 20px 0;
+      cursor: grab;
+    }
+
+    .certificates-slider.dragging {
+      cursor: grabbing;
     }
 
     .certificates-track {
       display: flex;
       gap: 16px;
       transition: transform 0.5s ease;
+      user-select: none;
+    }
+
+    .certificates-track.no-transition {
+      transition: none;
     }
 
     .certificate-card {
@@ -890,6 +900,76 @@
         currentIndex = Math.min(currentIndex, getMaxIndex());
         updateSlider();
       });
+
+      // Drag functionality for slider
+      const slider = track.parentElement;
+      let isDragging = false;
+      let startX = 0;
+      let currentTranslate = 0;
+      let prevTranslate = 0;
+      let animationID = 0;
+
+      // Mouse events
+      slider.addEventListener('mousedown', dragStart);
+      slider.addEventListener('mouseup', dragEnd);
+      slider.addEventListener('mouseleave', dragEnd);
+      slider.addEventListener('mousemove', drag);
+
+      // Touch events  
+      slider.addEventListener('touchstart', dragStart);
+      slider.addEventListener('touchend', dragEnd);
+      slider.addEventListener('touchmove', drag);
+
+      function dragStart(e) {
+        isDragging = true;
+        slider.classList.add('dragging');
+        track.classList.add('no-transition');
+        
+        startX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
+        prevTranslate = -currentIndex * cardWidth;
+        
+        animationID = requestAnimationFrame(animation);
+      }
+
+      function drag(e) {
+        if (!isDragging) return;
+        e.preventDefault();
+        
+        const currentX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
+        const diff = currentX - startX;
+        currentTranslate = prevTranslate + diff;
+      }
+
+      function dragEnd() {
+        if (!isDragging) return;
+        
+        isDragging = false;
+        slider.classList.remove('dragging');
+        track.classList.remove('no-transition');
+        cancelAnimationFrame(animationID);
+        
+        const movedBy = currentTranslate - prevTranslate;
+        
+        // Determine new index based on drag distance
+        if (movedBy < -100 && currentIndex < getMaxIndex()) {
+          currentIndex++;
+        } else if (movedBy > 100 && currentIndex > 0) {
+          currentIndex--;
+        }
+        
+        updateSlider();
+      }
+
+      function animation() {
+        setSliderPosition();
+        if (isDragging) {
+          requestAnimationFrame(animation);
+        }
+      }
+
+      function setSliderPosition() {
+        track.style.transform = `translateX(${currentTranslate}px)`;
+      }
 
       // Modal functionality
       const modal = document.getElementById('contactModal');
