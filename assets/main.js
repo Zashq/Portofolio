@@ -163,4 +163,3 @@ nextBtn.addEventListener("click", () => scrollByAmount(1));
     }
   });
 });
-
