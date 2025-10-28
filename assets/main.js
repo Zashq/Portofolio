@@ -19,52 +19,21 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
   // ===== Certificates slider =====
-  const track = document.getElementById("certTrack");
-  const prevBtn = document.getElementById("prevBtn");
-  const nextBtn = document.getElementById("nextBtn");
+// certificates slider scroll arrows
+const sliderEl = document.querySelector(".certificates-slider");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
 
-  let currentIndex = 0;
-  const cardWidth = 296;
-
-  function getMaxIndex() {
-    const visibleWidth = track.parentElement.offsetWidth;
-    const totalCards = track.children.length;
-    const cardsVisible = Math.floor(visibleWidth / cardWidth);
-    return Math.max(0, totalCards - cardsVisible);
-  }
-
-  function updateSlider() {
-    const maxIndex = getMaxIndex();
-    track.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
-    prevBtn.disabled = currentIndex === 0;
-    nextBtn.disabled = currentIndex >= maxIndex;
-  }
-
-  prevBtn.addEventListener("click", () => {
-    if (currentIndex > 0) {
-      currentIndex--;
-      updateSlider();
-    }
+function scrollByAmount(dir) {
+  const amount = 320; // pixels to scroll per click ~1 card
+  sliderEl.scrollBy({
+    left: dir * amount,
+    behavior: "smooth",
   });
+}
 
-  nextBtn.addEventListener("click", () => {
-    const maxIndex = getMaxIndex();
-    if (currentIndex < maxIndex) {
-      currentIndex++;
-      updateSlider();
-    }
-  });
-
-  // init slider
-  updateSlider();
-
-  // responsive resize => recompute
-  window.addEventListener("resize", () => {
-    currentIndex = Math.min(currentIndex, getMaxIndex());
-    updateSlider();
-  });
-
-  // drag to scroll
+prevBtn.addEventListener("click", () => scrollByAmount(-1));
+nextBtn.addEventListener("click", () => scrollByAmount(1));
 
 
   // ===== Modal / Contact form =====
@@ -123,7 +92,6 @@ document.addEventListener("DOMContentLoaded", () => {
     submitBtn.disabled = true;
     submitBtn.textContent = "Sending...";
 
-    // TODO: replace this with actual backend call (fetch to your serverless endpoint)
     setTimeout(() => {
       console.log("Form data:", formData);
 
@@ -161,11 +129,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const imgModalImg = document.getElementById("imgModalImg");
   const imgModalClose = document.getElementById("imgModalClose");
 
-  // kattintás minden kártyára
+
   document.querySelectorAll(".certificate-card").forEach((card) => {
     card.addEventListener("click", () => {
       const imgUrl = card.getAttribute("data-img");
-      if (!imgUrl) return; // ha nincs kép hozzá, akkor nincs preview
+      if (!imgUrl) return; 
 
       imgModalImg.src = imgUrl;
       imgModal.classList.add("active");
@@ -176,21 +144,19 @@ document.addEventListener("DOMContentLoaded", () => {
   function closeImgModal() {
     imgModal.classList.remove("active");
     document.body.style.overflow = "";
-    // reseteljük a src-t hogy mobilon ne maradjon memóriafogva
     imgModalImg.src = "";
   }
 
   imgModalClose.addEventListener("click", closeImgModal);
 
-  // háttérre kattintva is zárjon
+
   imgModal.addEventListener("click", (e) => {
-    // csak akkor zárjuk, ha a sötét háttérre kattintasz, nem a képre
     if (e.target === imgModal) {
       closeImgModal();
     }
   });
 
-  // Esc gomb zárja
+
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && imgModal.classList.contains("active")) {
       closeImgModal();

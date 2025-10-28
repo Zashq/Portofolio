@@ -208,13 +208,9 @@ main {
   cursor: grab;
 }
 
-.certificates-slider.dragging {
-  cursor: grabbing;
-}
-
 .certificates-track {
   display: flex;
-  gap: 16px;
+  gap: 15px;
   transition: transform 0.5s ease;
   user-select: none;
 }
