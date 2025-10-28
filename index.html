@@ -1,264 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portfolio – Profile Card + CV</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Roboto, sans-serif;
-      background: #0b0f14;
-      color: #e6e9ef;
-    }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio – Zalán Vészi</title>
 
-    main {
-      display: grid;
-      gap: 24px;
-      justify-items: center;
-      padding: 32px 16px 64px;
-    }
+  <!-- reCAPTCHA (Google wants this loaded globally) -->
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
-    .profile-card,
-    .cv-section {
-      width: min(100%, 720px);
-    }
-
-    /* --- Profile Card --- */
-    .profile-card {
-      display: flex;
-      gap: 18px;
-      align-items: center;
-      background: #11161d;
-      border: 1px solid #1f2937;
-      border-radius: 16px;
-      padding: 18px 22px;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .profile-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
-    }
-
-    .avatar {
-      width: 88px;
-      height: 88px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid #1f2937;
-      flex-shrink: 0;
-    }
-
-    .meta .name {
-      margin: 0;
-      font-size: 24px;
-      font-weight: 700;
-    }
-
-    .meta .role {
-      margin: 4px 0 8px;
-      color: #9aa4b2;
-      font-size: 15px;
-    }
-
-    .links a {
-      color: #e6e9ef;
-      text-decoration: none;
-      font-size: 14px;
-    }
-
-    .links a:hover {
-      text-decoration: underline;
-    }
-
-    @media (max-width: 600px) {
-      .profile-card {
-        flex-direction: column;
-        text-align: center;
-      }
-      .avatar {
-        width: 110px;
-        height: 110px;
-      }
-    }
-
-    /* --- CV Sections --- */
-    .cv-section {
-      background: #11161d;
-      border: 1px solid #1f2937;
-      border-radius: 16px;
-      padding: 18px 22px;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
-      line-height: 1.55;
-    }
-
-    .cv-section + .cv-section {
-      margin-top: 8px;
-    }
-
-    .cv-section h2 {
-      margin: 0 0 12px;
-      font-size: 20px;
-      letter-spacing: 0.3px;
-    }
-
-    .cv-section p {
-      margin: 8px 0;
-      color: #cfd6de;
-      font-size: 15px;
-    }
-
-    /* --- Experience --- */
-    .exp-item {
-      margin-bottom: 12px;
-    }
-
-    .exp-title {
-      margin: 0;
-      font-weight: 700;
-      font-size: 15px;
-    }
-
-    .exp-meta {
-      margin: 2px 0 6px;
-      color: #9aa4b2;
-      font-size: 13px;
-    }
-
-    .exp-list {
-      margin: 0;
-      padding-left: 18px;
-      color: #d9e0e7;
-      font-size: 14px;
-    }
-
-    .exp-list li {
-      margin: 4px 0;
-    }
-
-    /* --- Skills --- */
-    .chip {
-      display: inline-block;
-      margin: 4px 6px 0 0;
-      padding: 6px 10px;
-      border: 1px solid #1f2937;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.03);
-      font-size: 12px;
-    }
-
-    .chips {
-      display: flex;
-      flex-wrap: wrap;
-    }
-
-    /* --- Languages --- */
-    .lang-list {
-      list-style: none;
-      padding: 0;
-      margin: 8px 0 0;
-      font-size: 15px;
-      color: #cfd6de;
-    }
-
-    .lang-list li {
-      margin: 6px 0;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .lang-name {
-      font-weight: 600;
-      color: #e6e9ef;
-    }
-
-    .lang-level {
-      color: #9aa4b2;
-      font-size: 14px;
-    }
-
-    /* --- Hobbies --- */
-    .hobby-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .hobby {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid #1f2937;
-      border-radius: 999px;
-      padding: 6px 12px;
-      font-size: 13px;
-      color: #cfd6de;
-    }
-
-    /* --- Contact --- */
-    .contact-list {
-      list-style: none;
-      padding: 0;
-      margin: 8px 0 0;
-      font-size: 14px;
-    }
-
-    .contact-list li {
-      margin: 6px 0;
-    }
-
-    .contact-list a {
-      color: #e6e9ef;
-      text-decoration: none;
-    }
-
-    .contact-list a:hover {
-      text-decoration: underline;
-    }
-
-    /* --- Scroll Reveal Animation --- */
-    .cv-section,
-    .profile-card {
-      opacity: 0;
-      transform: translateY(60px);
-      transition: opacity 0.8s ease, transform 0.8s ease;
-    }
-
-    .cv-section.visible,
-    .profile-card.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  </style>
+  <!-- Your styles -->
+  <link rel="stylesheet" href="assets/styles.css" />
 </head>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const observer = new IntersectionObserver(
-    entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          observer.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.25 }
-  );
-
-  document.querySelectorAll('.cv-section, .profile-card').forEach(section => {
-    observer.observe(section);
-  });
-});
-</script>
-
 <body>
-
   <main id="app">
     <!-- Profile Card -->
     <section class="profile-card">
-      <img class="avatar" src="zalan.jpg" alt="Profile Picture">
+      <img class="avatar" src="zalan.jpg" alt="Zalán Vészi Profile Picture" />
       <div class="meta">
         <h1 class="name">Zalán Vészi</h1>
         <p class="role">University Student / IT Technician</p>
@@ -273,7 +31,11 @@ document.addEventListener('DOMContentLoaded', () => {
     <!-- About -->
     <section class="cv-section" id="about">
       <h2>About Me</h2>
-      <p>CS student & IT Technician building real products with Flutter, Java, and C# .NET. I focus on clean architecture, measurable outcomes, and reliable delivery.</p>
+      <p>
+        CS student & IT Technician building real products with Flutter, Java,
+        and C# .NET. I focus on clean architecture, measurable outcomes, and
+        reliable delivery.
+      </p>
     </section>
 
     <!-- Experience -->
@@ -304,13 +66,17 @@ document.addEventListener('DOMContentLoaded', () => {
     <!-- Education -->
     <section class="cv-section" id="education">
       <h2>Education</h2>
-      <p><strong>University of Medicine, Pharmacy, Science and Technology “G.E. Palade” of Târgu Mureș</strong><br>
-      Computer Science · 2022 – Present<br>
-      Focus areas: Algorithms, Operating Systems, Database Design, Computer Networks.</p>
+      <p>
+        <strong>University of Medicine, Pharmacy, Science and Technology "G.E. Palade" of Târgu Mureș</strong><br />
+        Computer Science · 2022 – Present<br />
+        Focus areas: Algorithms, Operating Systems, Database Design, Computer Networks.
+      </p>
 
-      <p><strong>Gheorghe Șincai Technological High School</strong><br>
-      Automotive Electrical & Electronics Technician · 2014 – 2018<br>
-      Focus areas: Mathematics, Technical Education, Electrical Systems, Automotive Electronics.</p>
+      <p>
+        <strong>Gheorghe Șincai Technological High School</strong><br />
+        Automotive Electrical & Electronics Technician · 2014 – 2018<br />
+        Focus areas: Mathematics, Technical Education, Electrical Systems, Automotive Electronics.
+      </p>
     </section>
 
     <!-- Skills -->
@@ -329,14 +95,103 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     </section>
 
+    <!-- Certificates/Achievements Slider -->
+<section class="cv-section" id="certificates">
+  <h2>Certificates & Achievements</h2>
+
+  <div class="certificates-slider">
+    <div class="certificates-track" id="certTrack">
+
+      <!-- Card 1 -->
+      <div class="certificate-card" data-img="assets/certs/main.jpg">
+        <div class="cert-icon">
+         <img src="assets/certs/coursera-logo-full-rgb.svg" alt="Coursera" />
+      </div>
+        <p class="cert-title">Google IT Support</p>
+        <p class="cert-issuer">Google</p>
+        <p class="cert-date">12 March 2020</p>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="certificate-card" data-img="assets/certs/1..jpg">
+        <div class="cert-icon">
+         <img src="assets/certs/coursera-logo-full-rgb.svg" alt="Coursera" />
+      </div>
+        <p class="cert-title">Tehnical Support Fundamentals</p>
+        <p class="cert-issuer">Google</p>
+        <p class="cert-date">12 March 2020</p>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="certificate-card" data-img="assets/certs/2..jpg">
+        <div class="cert-icon">
+         <img src="assets/certs/coursera-logo-full-rgb.svg" alt="Coursera" />
+      </div>
+        <p class="cert-title">The Bits and Bytes of Computer Networking</p>
+        <p class="cert-issuer">Google</p>
+        <p class="cert-date">12 March 2020</p>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="certificate-card" data-img="assets/certs/3..jpg">
+        <div class="cert-icon">
+         <img src="assets/certs/coursera-logo-full-rgb.svg" alt="Coursera" />
+      </div>
+        <p class="cert-title">System Administration and IT Infrastructure Services</p>
+        <p class="cert-issuer">Google</p>
+        <p class="cert-date">12 March 2020</p>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="certificate-card" data-img="assets/certs/4..jpg">
+        <div class="cert-icon">
+         <img src="assets/certs/coursera-logo-full-rgb.svg" alt="Coursera" />
+      </div>
+        <p class="cert-title">Operating Systems and You: Becoming a Power User</p>
+        <p class="cert-issuer">Google</p>
+        <p class="cert-date">12 March 2020</p>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="certificate-card" data-img="assets/certs/5..jpg">
+        <div class="cert-icon">
+         <img src="assets/certs/coursera-logo-full-rgb.svg" alt="Coursera" />
+      </div>
+        <p class="cert-title">IT Security: Defense against the digital dark arts</p>
+        <p class="cert-issuer">Google</p>
+        <p class="cert-date">12 March 2020</p>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="slider-controls">
+    <button class="slider-btn" id="prevBtn" aria-label="Previous">&#8249;</button>
+    <button class="slider-btn" id="nextBtn" aria-label="Next">&#8250;</button>
+  </div>
+</section>
+
+
     <!-- Languages -->
     <section class="cv-section" id="languages">
       <h2>Languages</h2>
       <ul class="lang-list">
-        <li><span class="lang-name">Hungarian</span> <span class="lang-level">Native</span></li>
-        <li><span class="lang-name">Romanian</span> <span class="lang-level">Advanced (C1)</span></li>
-        <li><span class="lang-name">English</span> <span class="lang-level">Advanced (C1)</span></li>
-        <li><span class="lang-name">German</span> <span class="lang-level">Beginner (A1)</span></li>
+        <li>
+          <span class="lang-name">Hungarian</span>
+          <span class="lang-level">Native</span>
+        </li>
+        <li>
+          <span class="lang-name">Romanian</span>
+          <span class="lang-level">Advanced (C1)</span>
+        </li>
+        <li>
+          <span class="lang-name">English</span>
+          <span class="lang-level">Advanced (C1)</span>
+        </li>
+        <li>
+          <span class="lang-name">German</span>
+          <span class="lang-level">Beginner (A1)</span>
+        </li>
       </ul>
     </section>
 
@@ -352,16 +207,128 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     </section>
 
-    <!-- Contact -->
+    <!-- Contact Info -->
     <section class="cv-section" id="contact">
-      <h2>Contact</h2>
+      <h2>Get in Touch</h2>
       <ul class="contact-list">
-        <li>📧 <a href="mailto:zalan.veszi@gmail.com">zalan.veszi@gmail.com</a></li>
-        <li>🔗 <a href="https://linkedin.com/in/zalan-veszi-711294240" target="_blank" rel="noopener">LinkedIn</a></li>
-        <li>💻 <a href="https://github.com/Zashq" target="_blank" rel="noopener">GitHub</a></li>
+        <li>
+          📧
+          <a href="mailto:zalan.veszi@gmail.com">zalan.veszi@gmail.com</a>
+        </li>
+        <li>
+          🔗
+          <a href="https://linkedin.com/in/zalan-veszi-711294240" target="_blank" rel="noopener">
+            LinkedIn
+          </a>
+        </li>
+        <li>
+          💻
+          <a href="https://github.com/Zashq" target="_blank" rel="noopener">
+            GitHub
+          </a>
+        </li>
       </ul>
+      <p style="margin-top: 16px; color: #9aa4b2; font-size: 14px;">
+        💌 Click the floating button in the bottom right to send me a message!
+      </p>
     </section>
   </main>
 
+  <!-- Floating Contact Button -->
+  <button
+    class="floating-contact-btn"
+    id="openContactModal"
+    aria-label="Open Contact Form"
+  >
+    ✉️
+  </button>
+
+  <!-- Contact Modal -->
+  <div class="contact-modal" id="contactModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Contact Me</h2>
+        <button
+          class="close-btn"
+          id="closeModal"
+          aria-label="Close"
+        >
+          ×
+        </button>
+      </div>
+
+      <form class="contact-form" id="contactForm">
+        <div class="form-group">
+          <label for="name">Name *</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            required
+            placeholder="Your full name"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            required
+            placeholder="your.email@example.com"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="subject">Subject</label>
+          <input
+            type="text"
+            id="subject"
+            name="subject"
+            placeholder="What can I help you with?"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="message">Message *</label>
+          <textarea
+            id="message"
+            name="message"
+            required
+            placeholder="Write your message here..."
+          ></textarea>
+        </div>
+
+        <div class="captcha-container">
+          <div
+            class="g-recaptcha"
+            data-sitekey="6Lej8PkrAAAAAFdVNd16t10NCYZ54amow5kJrvui"
+          ></div>
+        </div>
+
+        <button
+          type="submit"
+          class="submit-btn"
+          id="submitBtn"
+        >
+          Send Message
+        </button>
+
+        <div class="form-message" id="formMessage"></div>
+      </form>
+    </div>
+  </div>
+
+    <!-- Certificate Image Modal -->
+  <div class="img-modal" id="imgModal">
+    <div class="img-modal-inner">
+      <button class="img-modal-close" id="imgModalClose" aria-label="Close image">×</button>
+      <img id="imgModalImg" alt="Certificate preview">
+    </div>
+  </div>
+
+  <!-- Main JS -->
+  <script src="assets/main.js"></script>
 </body>
 </html>
