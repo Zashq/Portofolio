@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portfolio – Profile Card + CV</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Portfolio – Zalán Vészi</title>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <style>
     body {
       margin: 0;
@@ -148,6 +148,12 @@
       border-radius: 999px;
       background: rgba(255, 255, 255, 0.03);
       font-size: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .chip:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateY(-2px);
     }
 
     .chips {
@@ -194,27 +200,338 @@
       padding: 6px 12px;
       font-size: 13px;
       color: #cfd6de;
+      transition: all 0.3s ease;
     }
 
-    /* --- Contact --- */
-    .contact-list {
-      list-style: none;
-      padding: 0;
-      margin: 8px 0 0;
-      font-size: 14px;
+    .hobby:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: scale(1.05);
     }
 
-    .contact-list li {
-      margin: 6px 0;
+    /* --- Certificates Slider --- */
+    .certificates-slider {
+      position: relative;
+      overflow: hidden;
+      padding: 20px 0;
     }
 
-    .contact-list a {
+    .certificates-track {
+      display: flex;
+      gap: 16px;
+      transition: transform 0.5s ease;
+    }
+
+    .certificate-card {
+      min-width: 280px;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .certificate-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .certificate-card:hover::before {
+      left: 100%;
+    }
+
+    .certificate-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+      border-color: rgba(59, 130, 246, 0.5);
+    }
+
+    .cert-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .cert-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin: 0 0 4px;
       color: #e6e9ef;
-      text-decoration: none;
     }
 
-    .contact-list a:hover {
-      text-decoration: underline;
+    .cert-issuer {
+      font-size: 13px;
+      color: #9aa4b2;
+      margin: 0 0 4px;
+    }
+
+    .cert-date {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .slider-controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .slider-btn {
+      background: rgba(59, 130, 246, 0.2);
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #60a5fa;
+      font-size: 18px;
+      transition: all 0.3s ease;
+    }
+
+    .slider-btn:hover:not(:disabled) {
+      background: rgba(59, 130, 246, 0.3);
+      transform: scale(1.1);
+    }
+
+    .slider-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    /* --- Floating Contact Button --- */
+    .floating-contact-btn {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      border: none;
+      border-radius: 50%;
+      box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      color: white;
+      transition: all 0.3s ease;
+      z-index: 999;
+      animation: pulse 2s infinite;
+    }
+
+    .floating-contact-btn:hover {
+      transform: scale(1.1) rotate(10deg);
+      box-shadow: 0 12px 32px rgba(59, 130, 246, 0.6);
+    }
+
+    .floating-contact-btn:active {
+      transform: scale(0.95);
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+      }
+      50% {
+        box-shadow: 0 8px 32px rgba(59, 130, 246, 0.6);
+      }
+    }
+
+    /* --- Contact Modal --- */
+    .contact-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .contact-modal.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    .modal-content {
+      background: #11161d;
+      border: 1px solid #1f2937;
+      border-radius: 16px;
+      padding: 32px;
+      width: min(90%, 500px);
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+      position: relative;
+      animation: slideUp 0.4s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+      color: #e6e9ef;
+    }
+
+    .close-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid #1f2937;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #9aa4b2;
+      transition: all 0.3s ease;
+    }
+
+    .close-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #e6e9ef;
+      transform: rotate(90deg);
+    }
+
+    /* --- Contact Form --- */
+    .contact-form {
+      margin-top: 0;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      color: #cfd6de;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid #1f2937;
+      border-radius: 8px;
+      color: #e6e9ef;
+      font-family: inherit;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #3b82f6;
+      background: rgba(59, 130, 246, 0.05);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .form-group textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .captcha-container {
+      margin: 16px 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .submit-btn {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      border: none;
+      border-radius: 8px;
+      padding: 12px 32px;
+      color: white;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+
+    .submit-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .form-message {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      text-align: center;
+      display: none;
+    }
+
+    .form-message.success {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: #4ade80;
+      display: block;
+    }
+
+    .form-message.error {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+      display: block;
     }
 
     /* --- Scroll Reveal Animation --- */
@@ -230,35 +547,84 @@
       opacity: 1;
       transform: translateY(0);
     }
+
+    /* --- Contact List --- */
+    .contact-list {
+      list-style: none;
+      padding: 0;
+      margin: 8px 0 0;
+      font-size: 14px;
+    }
+
+    .contact-list li {
+      margin: 6px 0;
+    }
+
+    .contact-list a {
+      color: #e6e9ef;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .contact-list a:hover {
+      color: #60a5fa;
+      text-decoration: underline;
+    }
+
+    /* --- Mobile Adjustments --- */
+    @media (max-width: 600px) {
+      .certificates-track {
+        gap: 12px;
+      }
+      
+      .certificate-card {
+        min-width: 240px;
+      }
+
+      .floating-contact-btn {
+        width: 56px;
+        height: 56px;
+        bottom: 24px;
+        right: 24px;
+        font-size: 24px;
+      }
+
+      .modal-content {
+        padding: 24px;
+      }
+
+      .modal-title {
+        font-size: 20px;
+      }
+    }
+
+    /* --- Scrollbar Styling --- */
+    .modal-content::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .modal-content::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+    }
+
+    .modal-content::-webkit-scrollbar-thumb {
+      background: rgba(59, 130, 246, 0.3);
+      border-radius: 4px;
+    }
+
+    .modal-content::-webkit-scrollbar-thumb:hover {
+      background: rgba(59, 130, 246, 0.5);
+    }
   </style>
 </head>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const observer = new IntersectionObserver(
-    entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          observer.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.25 }
-  );
-
-  document.querySelectorAll('.cv-section, .profile-card').forEach(section => {
-    observer.observe(section);
-  });
-});
-</script>
 
 <body>
 
   <main id="app">
     <!-- Profile Card -->
     <section class="profile-card">
-      <img class="avatar" src="zalan.jpg" alt="Profile Picture">
+      <img class="avatar" src="zalan.jpg" alt="Zalán Vészi Profile Picture">
       <div class="meta">
         <h1 class="name">Zalán Vészi</h1>
         <p class="role">University Student / IT Technician</p>
@@ -304,7 +670,7 @@ document.addEventListener('DOMContentLoaded', () => {
     <!-- Education -->
     <section class="cv-section" id="education">
       <h2>Education</h2>
-      <p><strong>University of Medicine, Pharmacy, Science and Technology “G.E. Palade” of Târgu Mureș</strong><br>
+      <p><strong>University of Medicine, Pharmacy, Science and Technology "G.E. Palade" of Târgu Mureș</strong><br>
       Computer Science · 2022 – Present<br>
       Focus areas: Algorithms, Operating Systems, Database Design, Computer Networks.</p>
 
@@ -326,6 +692,55 @@ document.addEventListener('DOMContentLoaded', () => {
         <span class="chip">Git / GitHub</span>
         <span class="chip">Linux</span>
         <span class="chip">UniFi / VLAN</span>
+      </div>
+    </section>
+
+    <!-- Certificates/Achievements Slider -->
+    <section class="cv-section" id="certificates">
+      <h2>Certificates & Achievements</h2>
+      <div class="certificates-slider">
+        <div class="certificates-track" id="certTrack">
+          <div class="certificate-card">
+            <div class="cert-icon">🎓</div>
+            <p class="cert-title">Computer Science BSc</p>
+            <p class="cert-issuer">UMFST Târgu Mureș</p>
+            <p class="cert-date">2022 - Present</p>
+          </div>
+          <div class="certificate-card">
+            <div class="cert-icon">🏆</div>
+            <p class="cert-title">Network Administration</p>
+            <p class="cert-issuer">UniFi Certified</p>
+            <p class="cert-date">2020</p>
+          </div>
+          <div class="certificate-card">
+            <div class="cert-icon">💻</div>
+            <p class="cert-title">Full-Stack Development</p>
+            <p class="cert-issuer">University Projects</p>
+            <p class="cert-date">2023</p>
+          </div>
+          <div class="certificate-card">
+            <div class="cert-icon">📱</div>
+            <p class="cert-title">Flutter Development</p>
+            <p class="cert-issuer">Self-taught & Projects</p>
+            <p class="cert-date">2023</p>
+          </div>
+          <div class="certificate-card">
+            <div class="cert-icon">🔧</div>
+            <p class="cert-title">Automotive Electronics</p>
+            <p class="cert-issuer">Gheorghe Șincai High School</p>
+            <p class="cert-date">2018</p>
+          </div>
+          <div class="certificate-card">
+            <div class="cert-icon">🔒</div>
+            <p class="cert-title">Network Security</p>
+            <p class="cert-issuer">IDS/IPS Configuration</p>
+            <p class="cert-date">2019</p>
+          </div>
+        </div>
+      </div>
+      <div class="slider-controls">
+        <button class="slider-btn" id="prevBtn" aria-label="Previous">&#8249;</button>
+        <button class="slider-btn" id="nextBtn" aria-label="Next">&#8250;</button>
       </div>
     </section>
 
@@ -352,16 +767,220 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     </section>
 
-    <!-- Contact -->
+    <!-- Contact Info -->
     <section class="cv-section" id="contact">
-      <h2>Contact</h2>
+      <h2>Get in Touch</h2>
       <ul class="contact-list">
         <li>📧 <a href="mailto:zalan.veszi@gmail.com">zalan.veszi@gmail.com</a></li>
         <li>🔗 <a href="https://linkedin.com/in/zalan-veszi-711294240" target="_blank" rel="noopener">LinkedIn</a></li>
         <li>💻 <a href="https://github.com/Zashq" target="_blank" rel="noopener">GitHub</a></li>
       </ul>
+      <p style="margin-top: 16px; color: #9aa4b2; font-size: 14px;">
+        💌 Click the floating button in the bottom right to send me a message!
+      </p>
     </section>
   </main>
+
+  <!-- Floating Contact Button -->
+  <button class="floating-contact-btn" id="openContactModal" aria-label="Open Contact Form">
+    ✉️
+  </button>
+
+  <!-- Contact Modal -->
+  <div class="contact-modal" id="contactModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Contact Me</h2>
+        <button class="close-btn" id="closeModal" aria-label="Close">×</button>
+      </div>
+
+      <form class="contact-form" id="contactForm">
+        <div class="form-group">
+          <label for="name">Name *</label>
+          <input type="text" id="name" name="name" required placeholder="Your full name">
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input type="email" id="email" name="email" required placeholder="your.email@example.com">
+        </div>
+
+        <div class="form-group">
+          <label for="subject">Subject</label>
+          <input type="text" id="subject" name="subject" placeholder="What can I help you with?">
+        </div>
+
+        <div class="form-group">
+          <label for="message">Message *</label>
+          <textarea id="message" name="message" required placeholder="Write your message here..."></textarea>
+        </div>
+
+        <div class="captcha-container">
+          <!-- reCAPTCHA v2 (checkbox) -->
+          <div class="g-recaptcha" data-sitekey="6Lej8PkrAAAAAFdVNd16t10NCYZ54amow5kJrvui"></div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">Send Message</button>
+
+        <div class="form-message" id="formMessage"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Scroll reveal animation
+    document.addEventListener('DOMContentLoaded', () => {
+      const observer = new IntersectionObserver(
+        entries => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.25 }
+      );
+
+      document.querySelectorAll('.cv-section, .profile-card').forEach(section => {
+        observer.observe(section);
+      });
+
+      // Certificates slider
+      const track = document.getElementById('certTrack');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      let currentIndex = 0;
+      const cardWidth = 296; 
+      
+      function getMaxIndex() {
+        const visibleWidth = track.parentElement.offsetWidth;
+        const totalCards = track.children.length;
+        const cardsVisible = Math.floor(visibleWidth / cardWidth);
+        return Math.max(0, totalCards - cardsVisible);
+      }
+
+      function updateSlider() {
+        const maxIndex = getMaxIndex();
+        track.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
+        prevBtn.disabled = currentIndex === 0;
+        nextBtn.disabled = currentIndex >= maxIndex;
+      }
+
+      prevBtn.addEventListener('click', () => {
+        if (currentIndex > 0) {
+          currentIndex--;
+          updateSlider();
+        }
+      });
+
+      nextBtn.addEventListener('click', () => {
+        const maxIndex = getMaxIndex();
+        if (currentIndex < maxIndex) {
+          currentIndex++;
+          updateSlider();
+        }
+      });
+
+      // Initialize slider
+      updateSlider();
+
+      // Update on window resize
+      window.addEventListener('resize', () => {
+        currentIndex = Math.min(currentIndex, getMaxIndex());
+        updateSlider();
+      });
+
+      // Modal functionality
+      const modal = document.getElementById('contactModal');
+      const openBtn = document.getElementById('openContactModal');
+      const closeBtn = document.getElementById('closeModal');
+
+      openBtn.addEventListener('click', () => {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden'; 
+      });
+
+      closeBtn.addEventListener('click', () => {
+        modal.classList.remove('active');
+        document.body.style.overflow = ''; 
+      });
+
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+          modal.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+      });
+
+      const form = document.getElementById('contactForm');
+      const submitBtn = document.getElementById('submitBtn');
+      const formMessage = document.getElementById('formMessage');
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        // Check reCAPTCHA
+        const recaptchaResponse = grecaptcha.getResponse();
+        
+        if (!recaptchaResponse) {
+          showMessage('Please complete the CAPTCHA!', 'error');
+          return;
+        }
+
+        // Get form data
+        const formData = {
+          name: document.getElementById('name').value,
+          email: document.getElementById('email').value,
+          subject: document.getElementById('subject').value,
+          message: document.getElementById('message').value,
+          recaptcha: recaptchaResponse
+        };
+
+        // Disable submit button
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+
+        // Simulate form submission (replace with actual backend call)
+        setTimeout(() => {
+          console.log('Form data:', formData);
+          
+          showMessage('Thank you for your message! I\'ll get back to you soon.', 'success');
+          
+          form.reset();
+          grecaptcha.reset();
+          
+          // Re-enable button
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send Message';
+
+          // Close modal after 2 seconds
+          setTimeout(() => {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+            formMessage.style.display = 'none';
+          }, 2000);
+        }, 1500);
+
+      });
+
+      function showMessage(message, type) {
+        formMessage.textContent = message;
+        formMessage.className = `form-message ${type}`;
+        
+        setTimeout(() => {
+          formMessage.style.display = 'none';
+        }, 5000);
+      }
+    });
+  </script>
 
 </body>
 </html>
