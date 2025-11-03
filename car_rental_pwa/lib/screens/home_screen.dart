@@ -154,17 +154,37 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: TextStyle(fontSize: 18, color: Colors.grey),
                     ),
                   )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(20),
-                    itemCount: filteredCars.length,
-                    itemBuilder: (context, index) {
-                      return CarCard(
-                        car: filteredCars[index],
-                        onTap: () {
-                          Navigator.pushNamed(
-                            context,
-                            '/car-details',
-                            arguments: filteredCars[index],
+                : LayoutBuilder(
+                    builder: (context, constraints) {
+                      // Determine number of columns based on screen width
+                      int crossAxisCount;
+                      if (constraints.maxWidth >= 1200) {
+                        crossAxisCount = 3; // Large screens (desktop)
+                      } else if (constraints.maxWidth >= 600) {
+                        crossAxisCount = 2; // Medium screens (tablet)
+                      } else {
+                        crossAxisCount = 1; // Small screens (mobile)
+                      }
+
+                      return GridView.builder(
+                        padding: const EdgeInsets.all(20),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          childAspectRatio: crossAxisCount == 1 ? 1.2 : 0.85,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                        ),
+                        itemCount: filteredCars.length,
+                        itemBuilder: (context, index) {
+                          return CarCard(
+                            car: filteredCars[index],
+                            onTap: () {
+                              Navigator.pushNamed(
+                                context,
+                                '/car-details',
+                                arguments: filteredCars[index],
+                              );
+                            },
                           );
                         },
                       );
