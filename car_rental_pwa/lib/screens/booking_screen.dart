@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/car.dart';
+import '../widgets/responsive_wrapper.dart';
 
 class BookingScreen extends StatefulWidget {
   const BookingScreen({super.key});
@@ -25,7 +26,20 @@ class _BookingScreenState extends State<BookingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Car car = ModalRoute.of(context)!.settings.arguments as Car;
+    final car = ModalRoute.of(context)?.settings.arguments as Car?;
+
+    // If no car data, show error and go back
+    if (car == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.of(context).pushReplacementNamed('/');
+      });
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     final numberOfDays = startDate != null && endDate != null
         ? endDate!.difference(startDate!).inDays
         : 0;
@@ -41,8 +55,6 @@ class _BookingScreenState extends State<BookingScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor,
                 borderRadius: const BorderRadius.only(
@@ -50,33 +62,50 @@ class _BookingScreenState extends State<BookingScreen> {
                   bottomRight: Radius.circular(30),
                 ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${car.brand} ${car.name}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 700),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: ResponsiveConstraints.getHorizontalPadding(context),
+                      vertical: 20,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                      Text(
+                        '${car.brand} ${car.name}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        '\$${car.pricePerDay.toStringAsFixed(0)} per day',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 16,
+                        ),
+                      ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 5),
-                  Text(
-                    '\$${car.pricePerDay.toStringAsFixed(0)} per day',
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 16,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 700),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: ResponsiveConstraints.getHorizontalPadding(context),
+                    vertical: 20,
+                  ),
+                  child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                   const Text(
                     'Rental Period',
                     style: TextStyle(
@@ -174,15 +203,16 @@ class _BookingScreenState extends State<BookingScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 30),
-                ],
+                    const SizedBox(height: 30),
+                  ],
+                ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
+    ),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
@@ -194,25 +224,36 @@ class _BookingScreenState extends State<BookingScreen> {
             ),
           ],
         ),
-        child: SafeArea(
-          child: ElevatedButton(
-            onPressed: startDate != null && endDate != null
-                ? () => _confirmBooking(context, car, numberOfDays, totalPrice)
-                : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).primaryColor,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 700),
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: ResponsiveConstraints.getHorizontalPadding(context),
+                vertical: 20,
               ),
-              disabledBackgroundColor: Colors.grey[300],
-            ),
-            child: const Text(
-              'Confirm Booking',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+              child: SafeArea(
+                child: ElevatedButton(
+                  onPressed: startDate != null && endDate != null
+                      ? () => _confirmBooking(context, car, numberOfDays, totalPrice)
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    disabledBackgroundColor: Colors.grey[300],
+                  ),
+                  child: const Text(
+                    'Confirm Booking',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),

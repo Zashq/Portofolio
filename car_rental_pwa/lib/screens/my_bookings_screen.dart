@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/booking.dart';
 import '../models/car.dart';
+import '../widgets/responsive_wrapper.dart';
 
 class MyBookingsScreen extends StatefulWidget {
   const MyBookingsScreen({super.key});
@@ -84,12 +85,17 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                 ],
               ),
             )
-          : ListView.builder(
-              padding: const EdgeInsets.all(20),
-              itemCount: bookings.length,
-              itemBuilder: (context, index) {
-                return _buildBookingCard(bookings[index]);
-              },
+          : ResponsiveWrapper(
+              child: ListView.builder(
+                padding: EdgeInsets.symmetric(
+                  horizontal: ResponsiveConstraints.getHorizontalPadding(context),
+                  vertical: 20,
+                ),
+                itemCount: bookings.length,
+                itemBuilder: (context, index) {
+                  return _buildBookingCard(bookings[index]);
+                },
+              ),
             ),
     );
   }

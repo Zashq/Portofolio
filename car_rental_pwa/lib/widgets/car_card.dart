@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/car.dart';
+import 'responsive_wrapper.dart';
 
 class CarCard extends StatelessWidget {
   final Car car;
@@ -13,8 +14,12 @@ class CarCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDesktop = ResponsiveConstraints.isDesktop(context);
+    final imageHeight = ResponsiveConstraints.getImageHeight(context);
+
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: EdgeInsets.only(bottom: isDesktop ? 0 : 16),
+      elevation: 2,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
@@ -29,12 +34,12 @@ class CarCard extends StatelessWidget {
                   children: [
                     Image.network(
                       car.imageUrl,
-                      height: 180,
+                      height: imageHeight,
                       width: double.infinity,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
-                          height: 180,
+                          height: imageHeight,
                           color: Colors.grey[300],
                           child: const Center(
                             child: Icon(

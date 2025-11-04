@@ -1,12 +1,25 @@
 import 'package:flutter/material.dart';
 import '../models/car.dart';
+import '../widgets/responsive_wrapper.dart';
 
 class CarDetailsScreen extends StatelessWidget {
   const CarDetailsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final Car car = ModalRoute.of(context)!.settings.arguments as Car;
+    final car = ModalRoute.of(context)?.settings.arguments as Car?;
+
+    // If no car data, show error and go back
+    if (car == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.of(context).pushReplacementNamed('/');
+      });
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
 
     return Scaffold(
       body: CustomScrollView(
@@ -45,11 +58,17 @@ class CarDetailsScreen extends StatelessWidget {
             ),
           ),
           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 900),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: ResponsiveConstraints.getHorizontalPadding(context),
+                    vertical: 20,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -215,15 +234,16 @@ class CarDetailsScreen extends StatelessWidget {
                       );
                     }).toList(),
                   ),
-                  const SizedBox(height: 100),
-                ],
+                      const SizedBox(height: 100),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
         ],
       ),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
@@ -235,28 +255,39 @@ class CarDetailsScreen extends StatelessWidget {
             ),
           ],
         ),
-        child: SafeArea(
-          child: ElevatedButton(
-            onPressed: () {
-              Navigator.pushNamed(
-                context,
-                '/booking',
-                arguments: car,
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).primaryColor,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 900),
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: ResponsiveConstraints.getHorizontalPadding(context),
+                vertical: 20,
               ),
-            ),
-            child: const Text(
-              'Book Now',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+              child: SafeArea(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/booking',
+                      arguments: car,
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Book Now',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
