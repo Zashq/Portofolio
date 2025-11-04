@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/car.dart';
+import '../widgets/responsive_wrapper.dart';
 
 class BookingScreen extends StatefulWidget {
   const BookingScreen({super.key});
@@ -25,7 +26,17 @@ class _BookingScreenState extends State<BookingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Car car = ModalRoute.of(context)!.settings.arguments as Car;
+    final car = ModalRoute.of(context)?.settings.arguments as Car?;
+
+    if (car == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.of(context).pushReplacementNamed('/');
+      });
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     final numberOfDays = startDate != null && endDate != null
         ? endDate!.difference(startDate!).inDays
         : 0;
@@ -37,148 +48,157 @@ class _BookingScreenState extends State<BookingScreen> {
         elevation: 0,
       ),
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(30),
-                  bottomRight: Radius.circular(30),
+        child: ResponsiveWrapper(
+          maxWidth: 800,
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: ResponsiveConstraints.getHorizontalPadding(context),
+              vertical: 20,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Car Info Header
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor,
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${car.brand} ${car.name}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        '\$${car.pricePerDay.toStringAsFixed(0)} per day',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${car.brand} ${car.name}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                
+                const SizedBox(height: 30),
+                
+                // Rental Period Section
+                const Text(
+                  'Rental Period',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(height: 5),
-                  Text(
-                    '\$${car.pricePerDay.toStringAsFixed(0)} per day',
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 16,
-                    ),
+                ),
+                const SizedBox(height: 15),
+                _buildDateSelector(
+                  'Pick-up Date',
+                  startDate,
+                  Icons.calendar_today,
+                  () => _selectDate(context, true),
+                ),
+                const SizedBox(height: 15),
+                _buildDateSelector(
+                  'Drop-off Date',
+                  endDate,
+                  Icons.calendar_today,
+                  () => _selectDate(context, false),
+                ),
+                
+                const SizedBox(height: 30),
+                
+                // Locations Section
+                const Text(
+                  'Locations',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 15),
+                _buildLocationSelector(
+                  'Pick-up Location',
+                  pickupLocation,
+                  Icons.location_on,
+                  true,
+                ),
+                const SizedBox(height: 15),
+                _buildLocationSelector(
+                  'Drop-off Location',
+                  dropoffLocation,
+                  Icons.location_on,
+                  false,
+                ),
+                
+                const SizedBox(height: 30),
+                
+                // Price Summary
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.blue[50],
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(color: Colors.blue[200]!),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Number of Days:',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          Text(
+                            numberOfDays > 0 ? '$numberOfDays days' : 'Select dates',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      const Divider(),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Total Price:',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            numberOfDays > 0
+                                ? '\$${totalPrice.toStringAsFixed(2)}'
+                                : '\$0.00',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 100),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Rental Period',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                  _buildDateSelector(
-                    'Pick-up Date',
-                    startDate,
-                    Icons.calendar_today,
-                    () => _selectDate(context, true),
-                  ),
-                  const SizedBox(height: 15),
-                  _buildDateSelector(
-                    'Drop-off Date',
-                    endDate,
-                    Icons.calendar_today,
-                    () => _selectDate(context, false),
-                  ),
-                  const SizedBox(height: 30),
-                  const Text(
-                    'Locations',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                  _buildLocationSelector(
-                    'Pick-up Location',
-                    pickupLocation,
-                    Icons.location_on,
-                    true,
-                  ),
-                  const SizedBox(height: 15),
-                  _buildLocationSelector(
-                    'Drop-off Location',
-                    dropoffLocation,
-                    Icons.location_on,
-                    false,
-                  ),
-                  const SizedBox(height: 30),
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.blue[50],
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(color: Colors.blue[200]!),
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Number of Days:',
-                              style: TextStyle(fontSize: 16),
-                            ),
-                            Text(
-                              numberOfDays > 0 ? '$numberOfDays days' : 'Select dates',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        const Divider(),
-                        const SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Total Price:',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              numberOfDays > 0
-                                  ? '\$${totalPrice.toStringAsFixed(2)}'
-                                  : '\$0.00',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).primaryColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
       ),
       bottomNavigationBar: Container(

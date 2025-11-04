@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/booking.dart';
 import '../models/car.dart';
+import '../widgets/responsive_wrapper.dart';
 
 class MyBookingsScreen extends StatefulWidget {
   const MyBookingsScreen({super.key});
@@ -10,7 +11,6 @@ class MyBookingsScreen extends StatefulWidget {
 }
 
 class _MyBookingsScreenState extends State<MyBookingsScreen> {
-  // Sample bookings for demonstration
   late List<Booking> bookings;
 
   @override
@@ -73,23 +73,21 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Start exploring and book your first car!',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[500],
-                    ),
-                  ),
                 ],
               ),
             )
-          : ListView.builder(
-              padding: const EdgeInsets.all(20),
-              itemCount: bookings.length,
-              itemBuilder: (context, index) {
-                return _buildBookingCard(bookings[index]);
-              },
+          : ResponsiveWrapper(
+              maxWidth: 800,
+              child: ListView.builder(
+                padding: EdgeInsets.symmetric(
+                  horizontal: ResponsiveConstraints.getHorizontalPadding(context),
+                  vertical: 20,
+                ),
+                itemCount: bookings.length,
+                itemBuilder: (context, index) {
+                  return _buildBookingCard(bookings[index]);
+                },
+              ),
             ),
     );
   }
@@ -103,7 +101,6 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
@@ -135,14 +132,6 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                         ),
                       ),
                       const SizedBox(height: 5),
-                      Text(
-                        booking.car.type,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      const SizedBox(height: 5),
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,
@@ -169,175 +158,25 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
             const SizedBox(height: 15),
             const Divider(),
             const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildInfoItem(
-                    Icons.calendar_today,
-                    'Pick-up',
-                    '${booking.startDate.day}/${booking.startDate.month}/${booking.startDate.year}',
-                  ),
-                ),
-                Expanded(
-                  child: _buildInfoItem(
-                    Icons.calendar_today,
-                    'Drop-off',
-                    '${booking.endDate.day}/${booking.endDate.month}/${booking.endDate.year}',
-                  ),
-                ),
-              ],
-            ),
+            Text('Pick-up: ${booking.startDate.day}/${booking.startDate.month}/${booking.startDate.year}'),
+            Text('Drop-off: ${booking.endDate.day}/${booking.endDate.month}/${booking.endDate.year}'),
             const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildInfoItem(
-                    Icons.location_on,
-                    'Pick-up',
-                    booking.pickupLocation,
-                  ),
-                ),
-                Expanded(
-                  child: _buildInfoItem(
-                    Icons.location_on,
-                    'Drop-off',
-                    booking.dropoffLocation,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 15),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.blue[50],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Total Amount',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[700],
-                    ),
-                  ),
-                  Text(
-                    '\$${booking.totalPrice.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (booking.status == BookingStatus.confirmed) ...[
-              const SizedBox(height: 15),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    _showCancelDialog(booking);
-                  },
-                  icon: const Icon(Icons.cancel_outlined),
-                  label: const Text('Cancel Booking'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.red,
-                    side: const BorderSide(color: Colors.red),
-                  ),
-                ),
-              ),
-            ],
+            Text('Total: \$${booking.totalPrice.toStringAsFixed(2)}',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildInfoItem(IconData icon, String label, String value) {
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: Colors.grey[600]),
-        const SizedBox(width: 5),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Colors.grey[600],
-                ),
-              ),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
   Color _getStatusColor(BookingStatus status) {
     switch (status) {
-      case BookingStatus.pending:
-        return Colors.orange;
       case BookingStatus.confirmed:
         return Colors.blue;
-      case BookingStatus.active:
-        return Colors.green;
       case BookingStatus.completed:
         return Colors.grey;
-      case BookingStatus.cancelled:
-        return Colors.red;
+      default:
+        return Colors.orange;
     }
-  }
-
-  void _showCancelDialog(Booking booking) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Cancel Booking'),
-        content: const Text(
-          'Are you sure you want to cancel this booking? This action cannot be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('No, Keep It'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              setState(() {
-                booking.status == BookingStatus.cancelled;
-                bookings.removeWhere((b) => b.id == booking.id);
-              });
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Booking cancelled successfully'),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Yes, Cancel'),
-          ),
-        ],
-      ),
-    );
   }
 }
