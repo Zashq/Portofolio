@@ -14,7 +14,7 @@ class _BrowseCarsScreenState extends State<BrowseCarsScreen> {
   List<Car> cars = Car.getSampleCars();
   List<Car> filteredCars = [];
   String selectedType = 'All';
-  final List<String> carTypes = ['All', 'Sedan', 'SUV', 'Sports'];
+  final List<String> carTypes = ['All', 'Economy', 'Electric', 'Luxory', 'Sedan', 'SUV', 'Sports'];
 
   @override
   void initState() {
