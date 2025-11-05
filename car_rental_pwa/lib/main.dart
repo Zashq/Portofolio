@@ -1,5 +1,6 @@
+import 'package:car_rental_pwa/screens/landing_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:car_rental_pwa/screens/home_screen.dart';
+import 'package:car_rental_pwa/screens/browse_cars.dart';
 import 'package:car_rental_pwa/screens/car_details_screen.dart';
 import 'package:car_rental_pwa/screens/booking_screen.dart';
 import 'package:car_rental_pwa/screens/my_bookings_screen.dart';
@@ -30,10 +31,11 @@ class CarRentalApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => const HomeScreen(),
+        '/': (context) => const LandingScreen(),
         '/car-details': (context) => const CarDetailsScreen(),
         '/booking': (context) => const BookingScreen(),
         '/my-bookings': (context) => const MyBookingsScreen(),
+        '/browse-cars': (context) => const BrowseCarsScreen(),
       },
     );
   }
