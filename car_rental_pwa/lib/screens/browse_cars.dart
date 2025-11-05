@@ -3,18 +3,18 @@ import '../models/car.dart';
 import '../widgets/car_card.dart';
 import '../widgets/responsive_wrapper.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class BrowseCarsScreen extends StatefulWidget {
+  const BrowseCarsScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<BrowseCarsScreen> createState() => _BrowseCarsScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _BrowseCarsScreenState extends State<BrowseCarsScreen> {
   List<Car> cars = Car.getSampleCars();
   List<Car> filteredCars = [];
   String selectedType = 'All';
-  final List<String> carTypes = ['All', 'Sedan', 'SUV', 'Sports'];
+  final List<String> carTypes = ['All', 'Economy', 'Electric', 'Luxory', 'Sedan', 'SUV', 'Sports'];
 
   @override
   void initState() {
