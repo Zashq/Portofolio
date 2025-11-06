@@ -65,11 +65,15 @@ class _LandingScreenState extends State<LandingScreen> {
               ],
             ),
             actions: [
-              _buildNavButton(
-                'Home',
-                0,
-                () => setState(() => _selectedIndex = 0),
-              ),
+              _buildNavButton('Home', 0, () {
+                setState(() => _selectedIndex = 0);
+                _scrollController.animateTo(
+                  0,
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOut,
+                );
+              }),
+
               _buildNavButton('About', 1, () {
                 setState(() => _selectedIndex = 1);
                 _scrollToSection(_aboutKey);
