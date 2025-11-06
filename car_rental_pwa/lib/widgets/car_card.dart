@@ -6,11 +6,7 @@ class CarCard extends StatelessWidget {
   final Car car;
   final VoidCallback onTap;
 
-  const CarCard({
-    super.key,
-    required this.car,
-    required this.onTap,
-  });
+  const CarCard({super.key, required this.car, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -151,14 +147,17 @@ class CarCard extends StatelessWidget {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  _buildFeature(Icons.airline_seat_recline_normal, '${car.seats} Seats'),
+                  _buildFeature(
+                    Icons.airline_seat_recline_normal,
+                    '${car.seats} Seats',
+                  ),
                   const SizedBox(width: 15),
                   _buildFeature(Icons.settings, car.transmission),
                   const SizedBox(width: 15),
                   _buildFeature(Icons.local_gas_station, car.fuelType),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               const Divider(),
               const SizedBox(height: 8),
               Row(
@@ -177,10 +176,7 @@ class CarCard extends StatelessWidget {
                       ),
                       Text(
                         ' /day',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                       ),
                     ],
                   ),
@@ -210,13 +206,7 @@ class CarCard extends StatelessWidget {
       children: [
         Icon(icon, size: 16, color: Colors.grey[600]),
         const SizedBox(width: 4),
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[700],
-          ),
-        ),
+        Text(text, style: TextStyle(fontSize: 12, color: Colors.grey[700])),
       ],
     );
   }
