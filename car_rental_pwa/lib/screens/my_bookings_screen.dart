@@ -50,20 +50,13 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Bookings'),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: const Text('My Bookings'), elevation: 0),
       body: bookings.isEmpty
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.event_busy,
-                    size: 80,
-                    color: Colors.grey[400],
-                  ),
+                  Icon(Icons.event_busy, size: 80, color: Colors.grey[400]),
                   const SizedBox(height: 20),
                   Text(
                     'No bookings yet',
@@ -80,7 +73,9 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               maxWidth: 800,
               child: ListView.builder(
                 padding: EdgeInsets.symmetric(
-                  horizontal: ResponsiveConstraints.getHorizontalPadding(context),
+                  horizontal: ResponsiveConstraints.getHorizontalPadding(
+                    context,
+                  ),
                   vertical: 20,
                 ),
                 itemCount: bookings.length,
@@ -158,11 +153,17 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
             const SizedBox(height: 15),
             const Divider(),
             const SizedBox(height: 10),
-            Text('Pick-up: ${booking.startDate.day}/${booking.startDate.month}/${booking.startDate.year}'),
-            Text('Drop-off: ${booking.endDate.day}/${booking.endDate.month}/${booking.endDate.year}'),
+            Text(
+              'Pick-up: ${booking.startDate.day}/${booking.startDate.month}/${booking.startDate.year}',
+            ),
+            Text(
+              'Drop-off: ${booking.endDate.day}/${booking.endDate.month}/${booking.endDate.year}',
+            ),
             const SizedBox(height: 10),
-            Text('Total: \$${booking.totalPrice.toStringAsFixed(2)}',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(
+              'Total: \$${booking.totalPrice.toStringAsFixed(2)}',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
           ],
         ),
       ),

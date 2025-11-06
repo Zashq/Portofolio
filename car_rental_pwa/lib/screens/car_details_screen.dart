@@ -50,7 +50,9 @@ class CarDetailsScreen extends StatelessWidget {
               maxWidth: 800,
               child: Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: ResponsiveConstraints.getHorizontalPadding(context),
+                  horizontal: ResponsiveConstraints.getHorizontalPadding(
+                    context,
+                  ),
                   vertical: 20,
                 ),
                 child: Column(
@@ -93,7 +95,11 @@ class CarDetailsScreen extends StatelessWidget {
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.star, size: 18, color: Colors.white),
+                              const Icon(
+                                Icons.star,
+                                size: 18,
+                                color: Colors.white,
+                              ),
                               const SizedBox(width: 4),
                               Text(
                                 car.rating.toString(),
@@ -115,15 +121,12 @@ class CarDetailsScreen extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
-                            color: Theme.of(context).primaryColor,
+                            color: const Color(0xFF1a237e),
                           ),
                         ),
                         const Text(
                           ' / day',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.grey,
-                          ),
+                          style: TextStyle(fontSize: 18, color: Colors.grey),
                         ),
                       ],
                     ),
@@ -196,9 +199,7 @@ class CarDetailsScreen extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: Colors.blue[50],
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: Colors.blue[200]!,
-                            ),
+                            border: Border.all(color: Colors.blue[200]!),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -206,7 +207,7 @@ class CarDetailsScreen extends StatelessWidget {
                               Icon(
                                 Icons.check_circle,
                                 size: 16,
-                                color: Theme.of(context).primaryColor,
+                                color: const Color(0xFF1a237e),
                               ),
                               const SizedBox(width: 6),
                               Text(
@@ -245,14 +246,10 @@ class CarDetailsScreen extends StatelessWidget {
         child: SafeArea(
           child: ElevatedButton(
             onPressed: () {
-              Navigator.pushNamed(
-                context,
-                '/booking',
-                arguments: car,
-              );
+              Navigator.pushNamed(context, '/booking', arguments: car);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).primaryColor,
+              backgroundColor: const Color(0xFF1a237e),
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
@@ -261,10 +258,7 @@ class CarDetailsScreen extends StatelessWidget {
             ),
             child: const Text(
               'Book Now',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
         ),
@@ -284,20 +278,11 @@ class CarDetailsScreen extends StatelessWidget {
         children: [
           Icon(icon, size: 30, color: Colors.blue),
           const SizedBox(height: 8),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-            ),
-          ),
+          Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
           const SizedBox(height: 4),
           Text(
             value,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
         ],

@@ -6,11 +6,7 @@ class CarCard extends StatelessWidget {
   final Car car;
   final VoidCallback onTap;
 
-  const CarCard({
-    super.key,
-    required this.car,
-    required this.onTap,
-  });
+  const CarCard({super.key, required this.car, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -134,13 +130,13 @@ class CarCard extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor.withOpacity(0.1),
+                      color: const Color(0xFF1a237e).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       car.type,
                       style: TextStyle(
-                        color: Theme.of(context).primaryColor,
+                        color: const Color(0xFF1a237e),
                         fontWeight: FontWeight.w600,
                         fontSize: 12,
                       ),
@@ -151,14 +147,17 @@ class CarCard extends StatelessWidget {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  _buildFeature(Icons.airline_seat_recline_normal, '${car.seats} Seats'),
+                  _buildFeature(
+                    Icons.airline_seat_recline_normal,
+                    '${car.seats} Seats',
+                  ),
                   const SizedBox(width: 15),
                   _buildFeature(Icons.settings, car.transmission),
                   const SizedBox(width: 15),
                   _buildFeature(Icons.local_gas_station, car.fuelType),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               const Divider(),
               const SizedBox(height: 8),
               Row(
@@ -172,22 +171,19 @@ class CarCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: Theme.of(context).primaryColor,
+                          color: const Color(0xFF1a237e),
                         ),
                       ),
                       Text(
                         ' /day',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                       ),
                     ],
                   ),
                   ElevatedButton(
                     onPressed: car.isAvailable ? onTap : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).primaryColor,
+                      backgroundColor: const Color(0xFF1a237e),
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -210,13 +206,7 @@ class CarCard extends StatelessWidget {
       children: [
         Icon(icon, size: 16, color: Colors.grey[600]),
         const SizedBox(width: 4),
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[700],
-          ),
-        ),
+        Text(text, style: TextStyle(fontSize: 12, color: Colors.grey[700])),
       ],
     );
   }
