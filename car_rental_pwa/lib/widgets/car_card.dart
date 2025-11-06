@@ -130,13 +130,13 @@ class CarCard extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor.withOpacity(0.1),
+                      color: const Color(0xFF1a237e).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       car.type,
                       style: TextStyle(
-                        color: Theme.of(context).primaryColor,
+                        color: const Color(0xFF1a237e),
                         fontWeight: FontWeight.w600,
                         fontSize: 12,
                       ),
@@ -171,7 +171,7 @@ class CarCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: Theme.of(context).primaryColor,
+                          color: const Color(0xFF1a237e),
                         ),
                       ),
                       Text(
@@ -183,7 +183,7 @@ class CarCard extends StatelessWidget {
                   ElevatedButton(
                     onPressed: car.isAvailable ? onTap : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).primaryColor,
+                      backgroundColor: const Color(0xFF1a237e),
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),

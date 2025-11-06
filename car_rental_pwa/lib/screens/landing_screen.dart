@@ -51,11 +51,12 @@ class _LandingScreenState extends State<LandingScreen> {
             ),
             title: Row(
               children: [
-                const Icon(Icons.local_airport, size: 32),
+                Icon(Icons.local_airport, color: Colors.amber, size: 32),
                 const SizedBox(width: 12),
                 Text(
                   'AirportRent',
                   style: TextStyle(
+                    color: Colors.white,
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.2,
@@ -84,7 +85,7 @@ class _LandingScreenState extends State<LandingScreen> {
               const SizedBox(width: 20),
               Padding(
                 padding: const EdgeInsets.symmetric(
-                  vertical: 12,
+                  vertical: 10,
                   horizontal: 16,
                 ),
                 child: ElevatedButton(
@@ -104,6 +105,36 @@ class _LandingScreenState extends State<LandingScreen> {
                   ),
                   child: const Text(
                     'Book Now',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 16,
+                ),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/my-bookings');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.amber,
+                    foregroundColor: const Color(0xFF1a237e),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 16,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'My Bookings',
                     style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,

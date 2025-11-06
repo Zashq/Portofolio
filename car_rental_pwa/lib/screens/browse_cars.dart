@@ -14,7 +14,15 @@ class _BrowseCarsScreenState extends State<BrowseCarsScreen> {
   List<Car> cars = Car.getSampleCars();
   List<Car> filteredCars = [];
   String selectedType = 'All';
-  final List<String> carTypes = ['All', 'Economy', 'Electric', 'Luxory', 'Sedan', 'SUV', 'Sports'];
+  final List<String> carTypes = [
+    'All',
+    'Economy',
+    'Electric',
+    'Luxory',
+    'Sedan',
+    'SUV',
+    'Sports',
+  ];
 
   @override
   void initState() {
@@ -37,7 +45,10 @@ class _BrowseCarsScreenState extends State<BrowseCarsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Car Rental', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Car Rental',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         elevation: 0,
         actions: [
           IconButton(
@@ -61,7 +72,7 @@ class _BrowseCarsScreenState extends State<BrowseCarsScreen> {
         children: [
           Container(
             decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
+              color: const Color(0xFF1a237e),
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(30),
                 bottomRight: Radius.circular(30),
@@ -70,7 +81,9 @@ class _BrowseCarsScreenState extends State<BrowseCarsScreen> {
             child: ResponsiveWrapper(
               child: Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: ResponsiveConstraints.getHorizontalPadding(context),
+                  horizontal: ResponsiveConstraints.getHorizontalPadding(
+                    context,
+                  ),
                   vertical: 20,
                 ),
                 child: Column(
@@ -113,8 +126,12 @@ class _BrowseCarsScreenState extends State<BrowseCarsScreen> {
                           setState(() {
                             filteredCars = cars.where((car) {
                               final searchLower = value.toLowerCase();
-                              return car.name.toLowerCase().contains(searchLower) ||
-                                  car.brand.toLowerCase().contains(searchLower) ||
+                              return car.name.toLowerCase().contains(
+                                    searchLower,
+                                  ) ||
+                                  car.brand.toLowerCase().contains(
+                                    searchLower,
+                                  ) ||
                                   car.type.toLowerCase().contains(searchLower);
                             }).toList();
                           });
@@ -143,10 +160,12 @@ class _BrowseCarsScreenState extends State<BrowseCarsScreen> {
                         label: Text(type),
                         selected: isSelected,
                         onSelected: (selected) => filterCars(type),
-                        selectedColor: Theme.of(context).primaryColor,
+                        selectedColor: const Color(0xFF1a237e),
                         labelStyle: TextStyle(
                           color: isSelected ? Colors.white : Colors.black87,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                         ),
                       ),
                     );
@@ -165,55 +184,61 @@ class _BrowseCarsScreenState extends State<BrowseCarsScreen> {
                     ),
                   )
                 : ResponsiveConstraints.isDesktop(context)
-                    ? ResponsiveWrapper(
-                        maxWidth: 1400,
-                        child: GridView.builder(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: ResponsiveConstraints.getHorizontalPadding(context),
-                            vertical: 20,
-                          ),
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: ResponsiveConstraints.getCrossAxisCount(context),
-                            crossAxisSpacing: 20,
-                            mainAxisSpacing: 20,
-                            childAspectRatio: 0.85,
-                          ),
-                          itemCount: filteredCars.length,
-                          itemBuilder: (context, index) {
-                            return CarCard(
-                              car: filteredCars[index],
-                              onTap: () {
-                                Navigator.pushNamed(
-                                  context,
-                                  '/car-details',
-                                  arguments: filteredCars[index],
-                                );
-                              },
-                            );
-                          },
+                ? ResponsiveWrapper(
+                    maxWidth: 1400,
+                    child: GridView.builder(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: ResponsiveConstraints.getHorizontalPadding(
+                          context,
                         ),
-                      )
-                    : ResponsiveWrapper(
-                        child: ListView.builder(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: ResponsiveConstraints.getHorizontalPadding(context),
-                            vertical: 20,
-                          ),
-                          itemCount: filteredCars.length,
-                          itemBuilder: (context, index) {
-                            return CarCard(
-                              car: filteredCars[index],
-                              onTap: () {
-                                Navigator.pushNamed(
-                                  context,
-                                  '/car-details',
-                                  arguments: filteredCars[index],
-                                );
-                              },
-                            );
-                          },
-                        ),
+                        vertical: 20,
                       ),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: ResponsiveConstraints.getCrossAxisCount(
+                          context,
+                        ),
+                        crossAxisSpacing: 20,
+                        mainAxisSpacing: 20,
+                        childAspectRatio: 0.85,
+                      ),
+                      itemCount: filteredCars.length,
+                      itemBuilder: (context, index) {
+                        return CarCard(
+                          car: filteredCars[index],
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              '/car-details',
+                              arguments: filteredCars[index],
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  )
+                : ResponsiveWrapper(
+                    child: ListView.builder(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: ResponsiveConstraints.getHorizontalPadding(
+                          context,
+                        ),
+                        vertical: 20,
+                      ),
+                      itemCount: filteredCars.length,
+                      itemBuilder: (context, index) {
+                        return CarCard(
+                          car: filteredCars[index],
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              '/car-details',
+                              arguments: filteredCars[index],
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
           ),
         ],
       ),

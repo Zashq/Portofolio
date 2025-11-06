@@ -14,7 +14,7 @@ class _BookingScreenState extends State<BookingScreen> {
   DateTime? endDate;
   String pickupLocation = 'Downtown Center';
   String dropoffLocation = 'Downtown Center';
-  
+
   final List<String> locations = [
     'Downtown Center',
     'Airport Terminal',
@@ -32,9 +32,7 @@ class _BookingScreenState extends State<BookingScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.of(context).pushReplacementNamed('/');
       });
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     final numberOfDays = startDate != null && endDate != null
@@ -43,10 +41,7 @@ class _BookingScreenState extends State<BookingScreen> {
     final totalPrice = numberOfDays * car.pricePerDay;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Book Your Car'),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: const Text('Book Your Car'), elevation: 0),
       body: SingleChildScrollView(
         child: ResponsiveWrapper(
           maxWidth: 800,
@@ -63,7 +58,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor,
+                    color: const Color(0xFF1a237e),
                     borderRadius: BorderRadius.circular(15),
                   ),
                   child: Column(
@@ -88,16 +83,13 @@ class _BookingScreenState extends State<BookingScreen> {
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 30),
-                
+
                 // Rental Period Section
                 const Text(
                   'Rental Period',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 15),
                 _buildDateSelector(
@@ -113,16 +105,13 @@ class _BookingScreenState extends State<BookingScreen> {
                   Icons.calendar_today,
                   () => _selectDate(context, false),
                 ),
-                
+
                 const SizedBox(height: 30),
-                
+
                 // Locations Section
                 const Text(
                   'Locations',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 15),
                 _buildLocationSelector(
@@ -138,9 +127,9 @@ class _BookingScreenState extends State<BookingScreen> {
                   Icons.location_on,
                   false,
                 ),
-                
+
                 const SizedBox(height: 30),
-                
+
                 // Price Summary
                 Container(
                   padding: const EdgeInsets.all(20),
@@ -159,7 +148,9 @@ class _BookingScreenState extends State<BookingScreen> {
                             style: TextStyle(fontSize: 16),
                           ),
                           Text(
-                            numberOfDays > 0 ? '$numberOfDays days' : 'Select dates',
+                            numberOfDays > 0
+                                ? '$numberOfDays days'
+                                : 'Select dates',
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -187,7 +178,7 @@ class _BookingScreenState extends State<BookingScreen> {
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              color: Theme.of(context).primaryColor,
+                              color: const Color(0xFF1a237e),
                             ),
                           ),
                         ],
@@ -220,7 +211,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 ? () => _confirmBooking(context, car, numberOfDays, totalPrice)
                 : null,
             style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).primaryColor,
+              backgroundColor: const Color(0xFF1a237e),
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
@@ -230,10 +221,7 @@ class _BookingScreenState extends State<BookingScreen> {
             ),
             child: const Text(
               'Confirm Booking',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
         ),
@@ -258,7 +246,7 @@ class _BookingScreenState extends State<BookingScreen> {
         ),
         child: Row(
           children: [
-            Icon(icon, color: Theme.of(context).primaryColor),
+            Icon(icon, color: const Color(0xFF1a237e)),
             const SizedBox(width: 15),
             Expanded(
               child: Column(
@@ -266,10 +254,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 children: [
                   Text(
                     label,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                   const SizedBox(height: 5),
                   Text(
@@ -306,7 +291,7 @@ class _BookingScreenState extends State<BookingScreen> {
       ),
       child: Row(
         children: [
-          Icon(icon, color: Theme.of(context).primaryColor),
+          Icon(icon, color: const Color(0xFF1a237e)),
           const SizedBox(width: 15),
           Expanded(
             child: Column(
@@ -314,10 +299,7 @@ class _BookingScreenState extends State<BookingScreen> {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 5),
                 DropdownButton<String>(
