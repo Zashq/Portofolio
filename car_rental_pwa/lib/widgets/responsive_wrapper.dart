@@ -34,7 +34,6 @@ class ResponsiveConstraints {
   static const double tabletBreakpoint = 900;
   static const double desktopBreakpoint = 1200;
 
-  // Desktop-first: reasonable content widths
   static const double maxContentWidth = 1000;
   static const double maxCardWidth = 900;
   static const double maxFormWidth = 700;
@@ -54,19 +53,19 @@ class ResponsiveConstraints {
     if (width < mobileBreakpoint) return 16;
     if (width < tabletBreakpoint) return 32;
     if (width < 1400) return 48;
-    return 80; // Extra padding for very large screens
+    return 80; 
   }
 
   static int getCrossAxisCount(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     if (width < mobileBreakpoint) return 1;
     if (width < tabletBreakpoint) return 2;
-    return 3; // Desktop shows 3 cards in a row
+    return 3; 
   }
 
   static double getImageHeight(BuildContext context) {
     if (isMobile(context)) return 180;
     if (isTablet(context)) return 220;
-    return 280; // Larger images on desktop
+    return 280; 
   }
 }
