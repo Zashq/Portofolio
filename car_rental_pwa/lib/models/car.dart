@@ -40,7 +40,8 @@ class Car {
         transmission: 'Automatic',
         fuelType: 'Electric',
         rating: 4.8,
-        imageUrl: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=800',
+        imageUrl:
+            'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=800',
         features: ['Autopilot', 'Premium Audio', 'Heated Seats', 'GPS'],
       ),
       Car(
@@ -53,7 +54,8 @@ class Car {
         transmission: 'Automatic',
         fuelType: 'Petrol',
         rating: 4.5,
-        imageUrl: 'https://images.unsplash.com/photo-1590362891991-f776e747a588?w=800',
+        imageUrl:
+            'https://images.unsplash.com/photo-1590362891991-f776e747a588?w=800',
         features: ['Bluetooth', 'Backup Camera', 'Cruise Control', 'AC'],
       ),
       Car(
@@ -66,7 +68,8 @@ class Car {
         transmission: 'Automatic',
         fuelType: 'Diesel',
         rating: 4.7,
-        imageUrl: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800',
+        imageUrl:
+            'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800',
         features: ['Panoramic Roof', 'Leather Seats', 'Apple CarPlay', '4WD'],
       ),
       Car(
@@ -79,7 +82,8 @@ class Car {
         transmission: 'Manual',
         fuelType: 'Petrol',
         rating: 4.9,
-        imageUrl: 'https://images.unsplash.com/photo-1584345604476-8ec5f534bb30?w=800',
+        imageUrl:
+            'https://images.unsplash.com/photo-1584345604476-8ec5f534bb30?w=800',
         features: ['Sport Mode', 'Premium Sound', 'Performance Package', 'GPS'],
       ),
       Car(
@@ -92,7 +96,8 @@ class Car {
         transmission: 'Automatic',
         fuelType: 'Petrol',
         rating: 4.4,
-        imageUrl: 'https://images.unsplash.com/photo-1623869675781-80aa31012a5a?w=800',
+        imageUrl:
+            'https://images.unsplash.com/photo-1623869675781-80aa31012a5a?w=800',
         features: ['Bluetooth', 'Backup Camera', 'Fuel Efficient', 'AC'],
       ),
       Car(
@@ -105,8 +110,14 @@ class Car {
         transmission: 'Automatic',
         fuelType: 'Diesel',
         rating: 4.8,
-        imageUrl: 'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=800',
-        features: ['Luxury Interior', 'Off-Road Mode', 'Massage Seats', 'Premium Audio'],
+        imageUrl:
+            'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=800',
+        features: [
+          'Luxury Interior',
+          'Off-Road Mode',
+          'Massage Seats',
+          'Premium Audio',
+        ],
       ),
     ];
   }
