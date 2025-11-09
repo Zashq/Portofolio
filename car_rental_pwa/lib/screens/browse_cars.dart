@@ -50,22 +50,6 @@ class _BrowseCarsScreenState extends State<BrowseCarsScreen> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.bookmark_outline),
-            onPressed: () {
-              Navigator.pushNamed(context, '/my-bookings');
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.account_circle_outlined),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Profile feature coming soon!')),
-              );
-            },
-          ),
-        ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
