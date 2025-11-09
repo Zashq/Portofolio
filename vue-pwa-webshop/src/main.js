@@ -4,18 +4,15 @@ import router from './router'
 import { createPinia } from 'pinia'
 import './registerServiceWorker'
 
-// Vuetify
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import '@mdi/font/css/materialdesignicons.css'
 
-// Vue Toastification
 import Toast from 'vue-toastification'
 import 'vue-toastification/dist/index.css'
 
-// Firebase
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
@@ -61,7 +58,7 @@ if (messaging) {
   // Handle foreground messages
   onMessage(messaging, (payload) => {
     console.log('Message received. ', payload)
-    // Show notification using Vue Toastification
+  // Show notification using Vue Toastification
     const app = document.getElementById('app').__vue_app__
     if (app) {
       app.config.globalProperties.$toast.info(payload.notification.body, {
