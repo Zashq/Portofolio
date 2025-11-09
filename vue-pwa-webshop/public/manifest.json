@@ -32,21 +32,5 @@
   "orientation": "portrait",
   "categories": ["shopping", "lifestyle"],
   "description": "A modern progressive web app for online shopping with real-time notifications and secure payments",
-  "scope": "/",
-  "shortcuts": [
-    {
-      "name": "View Cart",
-      "short_name": "Cart",
-      "description": "View your shopping cart",
-      "url": "/cart",
-      "icons": [{ "src": "/img/icons/cart.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "Orders",
-      "short_name": "Orders",
-      "description": "View your order history",
-      "url": "/orders",
-      "icons": [{ "src": "/img/icons/orders.png", "sizes": "192x192" }]
-    }
-  ]
+  "scope": "/"
 }

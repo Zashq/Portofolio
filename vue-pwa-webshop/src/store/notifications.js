@@ -65,8 +65,7 @@ export const useNotificationStore = defineStore('notifications', () => {
         ...newNotification
       })
       
-      // Show browser notification if enabled
-      if ('Notification' in window && Notification.permission === 'granted') {
+  if ('Notification' in window && Notification.permission === 'granted') {
         new Notification(notification.title, {
           body: notification.message,
           icon: '/img/icons/android-chrome-192x192.png',

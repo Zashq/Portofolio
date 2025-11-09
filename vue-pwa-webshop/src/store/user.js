@@ -33,7 +33,7 @@ export const useUserStore = defineStore('user', () => {
       if (userDoc.exists()) {
         userData.value = userDoc.data()
       } else {
-        // Create user document if it doesn't exist
+        
         const newUserData = {
           email: user.value.email,
           displayName: user.value.displayName || user.value.email.split('@')[0],
