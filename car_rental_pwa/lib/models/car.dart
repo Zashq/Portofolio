@@ -79,7 +79,7 @@ class Car {
         transmission: 'Manual',
         fuelType: 'Petrol',
         rating: 4.9,
-        imageUrl: 'https://images.unsplash.com/photo-1588127333419-b9d7de223dcf?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1169',
+        imageUrl: 'https://images.unsplash.com/photo-1584345604476-8ec5f534bb30?w=800',
         features: ['Sport Mode', 'Premium Sound', 'Performance Package', 'GPS'],
       ),
       Car(

@@ -1,4 +1,3 @@
-import 'package:car_rental_pwa/screens/browse_cars.dart';
 import 'package:flutter/material.dart';
 
 class LandingScreen extends StatefulWidget {
@@ -9,874 +8,735 @@ class LandingScreen extends StatefulWidget {
 }
 
 class _LandingScreenState extends State<LandingScreen> {
-  int _selectedTab = 0;
+  int _selectedIndex = 0;
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _aboutKey = GlobalKey();
+  final GlobalKey _servicesKey = GlobalKey();
+  final GlobalKey _contactKey = GlobalKey();
+
+  void _scrollToSection(GlobalKey key) {
+    final context = key.currentContext;
+    if (context != null) {
+      Scrollable.ensureVisible(
+        context,
+        duration: const Duration(milliseconds: 800),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: CustomScrollView(
+        controller: _scrollController,
         slivers: [
+          // App Bar with Navigation
           SliverAppBar(
+            expandedHeight: 60,
+            floating: true,
             pinned: true,
-            expandedHeight: 80,
-            backgroundColor: Colors.white,
-            elevation: 2,
+            backgroundColor: const Color(0xFF1a237e),
+            elevation: 0,
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1400),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 40),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Logo
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF2196F3),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: const Icon(
-                                  Icons.flight_takeoff,
-                                  color: Colors.white,
-                                  size: 28,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              const Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'AirportCar Rental',
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF2196F3),
-                                      height: 1,
-                                    ),
-                                  ),
-                                  SizedBox(height: 2),
-                                  Text(
-                                    'Your Journey Starts Here',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.grey,
-                                      height: 1,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-
-                          // Navigation Tabs
-                          Row(
-                            children: [
-                              _buildNavTab('Home', 0),
-                              const SizedBox(width: 8),
-                              _buildNavTab('Fleet', 1),
-                              const SizedBox(width: 8),
-                              _buildNavTab('Services', 2),
-                              const SizedBox(width: 8),
-                              _buildNavTab('Contact', 3),
-                              const SizedBox(width: 8),
-                              _buildNavTab('About', 4),
-                              const SizedBox(width: 24),
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(context, '/browse-cars');
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF2196F3),
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 24,
-                                    vertical: 16,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  elevation: 0,
-                                ),
-                                child: const Row(
-                                  children: [
-                                    Icon(Icons.directions_car, size: 20),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'Browse Cars',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF1a237e), Color(0xFF283593)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
                 ),
               ),
             ),
+            title: Row(
+              children: [
+                Icon(Icons.local_airport, color: Colors.amber, size: 32),
+                const SizedBox(width: 12),
+                Text(
+                  'AirportRent',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              _buildNavButton('Home', 0, () {
+                setState(() => _selectedIndex = 0);
+                _scrollController.animateTo(
+                  0,
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOut,
+                );
+              }),
+
+              _buildNavButton('About', 1, () {
+                setState(() => _selectedIndex = 1);
+                _scrollToSection(_aboutKey);
+              }),
+              _buildNavButton('Services', 2, () {
+                setState(() => _selectedIndex = 2);
+                _scrollToSection(_servicesKey);
+              }),
+              _buildNavButton('Contact', 3, () {
+                setState(() => _selectedIndex = 3);
+                _scrollToSection(_contactKey);
+              }),
+              const SizedBox(width: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 16,
+                ),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/browse-cars');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.amber,
+                    foregroundColor: const Color(0xFF1a237e),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 16,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'Book Now',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 16,
+                ),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/my-bookings');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.amber,
+                    foregroundColor: const Color(0xFF1a237e),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 16,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'My Bookings',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 20),
+            ],
           ),
 
-          SliverToBoxAdapter(
-            child: _buildTabContent(),
+          // Hero Section
+          SliverToBoxAdapter(child: _buildHeroSection()),
+
+          // Features Section
+          SliverToBoxAdapter(child: _buildFeaturesSection()),
+
+          // About Section
+          SliverToBoxAdapter(child: _buildAboutSection()),
+
+          // Services Section
+          SliverToBoxAdapter(child: _buildServicesSection()),
+
+          // Contact Section
+          SliverToBoxAdapter(child: _buildContactSection()),
+
+          // Footer
+          SliverToBoxAdapter(child: _buildFooter()),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavButton(String label, int index, VoidCallback onPressed) {
+    final isSelected = _selectedIndex == index;
+    return TextButton(
+      onPressed: onPressed,
+      style: TextButton.styleFrom(
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        minimumSize: const Size(0, kToolbarHeight),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+          const SizedBox(height: 6),
+          if (isSelected)
+            Container(
+              height: 2,
+              width: 40,
+              decoration: BoxDecoration(
+                color: Colors.amber,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeroSection() {
+    return Container(
+      height: 600,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            const Color(0xFF1a237e).withOpacity(0.9),
+            const Color(0xFF283593).withOpacity(0.9),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Stack(
+        children: [
+          // Background pattern
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.1,
+              child: Image.network(
+                'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=1200',
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) =>
+                    Container(color: Colors.transparent),
+              ),
+            ),
+          ),
+
+          // Content
+          Center(
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 1200),
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Welcome to Airport Rent',
+                          style: TextStyle(
+                            color: Colors.amber,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        const Text(
+                          'Premium Car Rental\nAt Your Airport',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 56,
+                            fontWeight: FontWeight.bold,
+                            height: 1.2,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        const Text(
+                          'Convenient, reliable, and affordable car rentals right at the airport.\nStart your journey with comfort and style.',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 18,
+                            height: 1.6,
+                          ),
+                        ),
+                        const SizedBox(height: 40),
+                        Row(
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.pushNamed(context, '/browse-cars');
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.amber,
+                                foregroundColor: const Color(0xFF1a237e),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 48,
+                                  vertical: 24,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                elevation: 8,
+                              ),
+                              child: const Text(
+                                'Explore Fleet',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 20),
+                            OutlinedButton(
+                              onPressed: () => _scrollToSection(_contactKey),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                side: const BorderSide(
+                                  color: Colors.white,
+                                  width: 2,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 48,
+                                  vertical: 24,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: const Text(
+                                'Contact Us',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 80),
+                  Expanded(
+                    child: Container(
+                      height: 400,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.3),
+                            blurRadius: 30,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Image.network(
+                          'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800',
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
+                                color: Colors.white10,
+                                child: const Icon(
+                                  Icons.directions_car,
+                                  size: 100,
+                                  color: Colors.white30,
+                                ),
+                              ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildNavTab(String label, int index) {
-    final isSelected = _selectedTab == index;
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _selectedTab = index;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF2196F3).withOpacity(0.1) : Colors.transparent,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-            color: isSelected ? const Color(0xFF2196F3) : Colors.grey[700],
+  Widget _buildFeaturesSection() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 40),
+      color: Colors.grey[50],
+      child: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: Column(
+            children: [
+              const Text(
+                'Why Choose AirportRent?',
+                style: TextStyle(
+                  fontSize: 40,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1a237e),
+                ),
+              ),
+              const SizedBox(height: 60),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildFeatureCard(
+                      Icons.flight_land,
+                      'Airport Pickup',
+                      'Convenient pickup and drop-off right at the airport terminal',
+                    ),
+                  ),
+                  const SizedBox(width: 30),
+                  Expanded(
+                    child: _buildFeatureCard(
+                      Icons.verified_user,
+                      'Trusted Service',
+                      '24/7 customer support and roadside assistance',
+                    ),
+                  ),
+                  const SizedBox(width: 30),
+                  Expanded(
+                    child: _buildFeatureCard(
+                      Icons.attach_money,
+                      'Best Prices',
+                      'Competitive rates with no hidden fees',
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 30),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildFeatureCard(
+                      Icons.directions_car,
+                      'Premium Fleet',
+                      'Wide selection of well-maintained vehicles',
+                    ),
+                  ),
+                  const SizedBox(width: 30),
+                  Expanded(
+                    child: _buildFeatureCard(
+                      Icons.speed,
+                      'Quick Process',
+                      'Fast and easy booking and pickup process',
+                    ),
+                  ),
+                  const SizedBox(width: 30),
+                  Expanded(
+                    child: _buildFeatureCard(
+                      Icons.cleaning_services,
+                      'Clean & Safe',
+                      'Thoroughly sanitized vehicles after every rental',
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _buildTabContent() {
-    switch (_selectedTab) {
-      case 0:
-        return _buildHomeContent();
-      case 1:
-        return _buildFleetContent();
-      case 2:
-        return _buildServicesContent();
-      case 3:
-        return _buildContactContent();
-      case 4:
-        return _buildAboutContent();
-      default:
-        return _buildHomeContent();
-    }
+  Widget _buildFeatureCard(IconData icon, String title, String description) {
+    return Container(
+      padding: const EdgeInsets.all(30),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1a237e).withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, size: 48, color: const Color(0xFF1a237e)),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1a237e),
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            description,
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey[600],
+              height: 1.5,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
   }
 
-  Widget _buildHomeContent() {
-    return Column(
-      children: [
-        // Hero Section
-        Container(
-          height: 600,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                const Color(0xFF2196F3),
-                const Color(0xFF1976D2),
-              ],
-            ),
-          ),
-          child: Stack(
+  Widget _buildAboutSection() {
+    return Container(
+      key: _aboutKey,
+      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 40),
+      color: Colors.white,
+      child: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: Row(
             children: [
-              // Background pattern
-              Positioned.fill(
-                child: Opacity(
-                  opacity: 0.1,
-                  child: Image.network(
-                    'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1200',
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(),
+              Expanded(
+                child: Container(
+                  height: 500,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 30,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Image.network(
+                      'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800',
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        color: Colors.grey[300],
+                        child: const Icon(
+                          Icons.image,
+                          size: 100,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
-              Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1200),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 40),
-                    child: Row(
+              const SizedBox(width: 80),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'About Us',
+                      style: TextStyle(
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1a237e),
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    Text(
+                      'Your Trusted Airport Car Rental Partner',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[800],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'We specialize in providing premium car rental services directly at the airport, making your travel experience seamless and hassle-free. With over 10 years of experience, we\'ve served thousands of satisfied customers.',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[600],
+                        height: 1.8,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'Our mission is to provide reliable, affordable, and convenient transportation solutions for both business and leisure travelers. We maintain a diverse fleet of vehicles to meet every need and budget.',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[600],
+                        height: 1.8,
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    Row(
                       children: [
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: const Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.flight_land, color: Colors.white, size: 16),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'Airport Car Rental Service',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-                              const Text(
-                                'Your Perfect Ride\nAwaits at the Airport',
-                                style: TextStyle(
-                                  fontSize: 56,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  height: 1.2,
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-                              const Text(
-                                'Premium car rental service with instant pickup at airport terminals.\nBook now and drive away in minutes.',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.white70,
-                                  height: 1.6,
-                                ),
-                              ),
-                              const SizedBox(height: 40),
-                              Row(
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.pushNamed(context, '/');
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.white,
-                                      foregroundColor: const Color(0xFF2196F3),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 32,
-                                        vertical: 20,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      elevation: 0,
-                                    ),
-                                    child: const Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          'Browse Our Fleet',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        SizedBox(width: 8),
-                                        Icon(Icons.arrow_forward, size: 20),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  OutlinedButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        _selectedTab = 3;
-                                      });
-                                    },
-                                    style: OutlinedButton.styleFrom(
-                                      foregroundColor: Colors.white,
-                                      side: const BorderSide(color: Colors.white, width: 2),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 32,
-                                        vertical: 20,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                    ),
-                                    child: const Text(
-                                      'Contact Us',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 60),
-                        Expanded(
-                          child: Container(
-                            height: 400,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.3),
-                                  blurRadius: 30,
-                                  offset: const Offset(0, 10),
-                                ),
-                              ],
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(20),
-                              child: Image.network(
-                                'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800',
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    color: Colors.white24,
-                                    child: const Icon(
-                                      Icons.directions_car,
-                                      size: 100,
-                                      color: Colors.white,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        ),
+                        _buildStatCard('10K+', 'Happy Customers'),
+                        const SizedBox(width: 30),
+                        _buildStatCard('50+', 'Premium Cars'),
+                        const SizedBox(width: 30),
+                        _buildStatCard('24/7', 'Support'),
                       ],
                     ),
-                  ),
+                  ],
                 ),
               ),
             ],
           ),
         ),
-
-        // Features Section
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: 80),
-          color: Colors.white,
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1200),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40),
-                child: Column(
-                  children: [
-                    const Text(
-                      'Why Choose Us',
-                      style: TextStyle(
-                        fontSize: 42,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Premium airport car rental service with unmatched convenience',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    const SizedBox(height: 60),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildFeatureCard(
-                            Icons.flight_land,
-                            'Airport Pickup',
-                            'Direct pickup from all terminals with priority service',
-                            Colors.blue,
-                          ),
-                        ),
-                        const SizedBox(width: 24),
-                        Expanded(
-                          child: _buildFeatureCard(
-                            Icons.schedule,
-                            '24/7 Service',
-                            'Round-the-clock availability for all your travel needs',
-                            Colors.orange,
-                          ),
-                        ),
-                        const SizedBox(width: 24),
-                        Expanded(
-                          child: _buildFeatureCard(
-                            Icons.verified_user,
-                            'Insured Vehicles',
-                            'Comprehensive insurance coverage included',
-                            Colors.green,
-                          ),
-                        ),
-                        const SizedBox(width: 24),
-                        Expanded(
-                          child: _buildFeatureCard(
-                            Icons.price_check,
-                            'Best Prices',
-                            'Competitive rates with no hidden fees',
-                            Colors.purple,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-
-        // Stats Section
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: 60),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Colors.grey[100]!,
-                Colors.grey[50]!,
-              ],
-            ),
-          ),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1200),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildStatItem('10K+', 'Happy Customers'),
-                    _buildStatItem('50+', 'Premium Vehicles'),
-                    _buildStatItem('99%', 'Satisfaction Rate'),
-                    _buildStatItem('24/7', 'Support Available'),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-
-        // CTA Section
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: 80),
-          color: const Color(0xFF2196F3),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1200),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40),
-                child: Column(
-                  children: [
-                    const Text(
-                      'Ready to Hit the Road?',
-                      style: TextStyle(
-                        fontSize: 42,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Book your perfect car in just a few clicks',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white70,
-                      ),
-                    ),
-                    const SizedBox(height: 40),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/');
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: const Color(0xFF2196F3),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 48,
-                          vertical: 24,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Start Booking Now',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(width: 12),
-                          Icon(Icons.arrow_forward, size: 24),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 
-  Widget _buildFleetContent() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 80),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
-            child: Column(
-              children: [
-                const Text(
-                  'Our Premium Fleet',
-                  style: TextStyle(
-                    fontSize: 42,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Choose from our wide selection of vehicles',
-                  style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 60),
-                GridView.count(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  crossAxisCount: 3,
-                  mainAxisSpacing: 30,
-                  crossAxisSpacing: 30,
-                  childAspectRatio: 1.2,
-                  children: [
-                    _buildFleetCard('Economy', 'From \$40/day', Icons.directions_car, Colors.green),
-                    _buildFleetCard('Sedan', 'From \$60/day', Icons.time_to_leave, Colors.blue),
-                    _buildFleetCard('SUV', 'From \$95/day', Icons.airport_shuttle, Colors.orange),
-                    _buildFleetCard('Luxury', 'From \$150/day', Icons.emoji_transportation, Colors.purple),
-                    _buildFleetCard('Sports', 'From \$110/day', Icons.sports_motorsports, Colors.red),
-                    _buildFleetCard('Electric', 'From \$120/day', Icons.electric_car, Colors.teal),
-                  ],
-                ),
-                const SizedBox(height: 60),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/');
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2196F3),
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-                  ),
-                  child: const Text(
-                    'View All Vehicles',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
+  Widget _buildStatCard(String number, String label) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1a237e).withOpacity(0.05),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            Text(
+              number,
+              style: const TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1a237e),
+              ),
             ),
-          ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildServicesContent() {
+  Widget _buildServicesSection() {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 80),
+      key: _servicesKey,
+      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 40),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            const Color(0xFF1a237e).withOpacity(0.05),
+            const Color(0xFF283593).withOpacity(0.05),
+          ],
+        ),
+      ),
       child: Center(
-        child: ConstrainedBox(
+        child: Container(
           constraints: const BoxConstraints(maxWidth: 1200),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
-            child: Column(
-              children: [
-                const Text(
-                  'Our Services',
-                  style: TextStyle(fontSize: 42, fontWeight: FontWeight.bold),
+          child: Column(
+            children: [
+              const Text(
+                'Our Services',
+                style: TextStyle(
+                  fontSize: 40,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1a237e),
                 ),
-                const SizedBox(height: 60),
-                ...[
-                  _buildServiceItem(
-                    Icons.flight_land,
-                    'Airport Meet & Greet',
-                    'Personal service at arrival terminal with immediate vehicle handover',
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Comprehensive car rental solutions for every traveler',
+                style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+              ),
+              const SizedBox(height: 60),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: _buildServiceCard(
+                      Icons.business_center,
+                      'Business Rentals',
+                      'Professional vehicles for corporate travel with flexible rental terms and invoicing options.',
+                    ),
                   ),
-                  _buildServiceItem(
-                    Icons.car_rental,
-                    'Flexible Rental Periods',
-                    'Hourly, daily, weekly, or monthly rental options available',
+                  const SizedBox(width: 30),
+                  Expanded(
+                    child: _buildServiceCard(
+                      Icons.beach_access,
+                      'Leisure Travel',
+                      'Comfortable and spacious vehicles perfect for family vacations and weekend getaways.',
+                    ),
                   ),
-                  _buildServiceItem(
-                    Icons.navigation,
-                    'GPS Navigation',
-                    'All vehicles equipped with latest GPS systems',
-                  ),
-                  _buildServiceItem(
-                    Icons.child_care,
-                    'Child Seats Available',
-                    'Complimentary child safety seats upon request',
-                  ),
-                  _buildServiceItem(
-                    Icons.local_gas_station,
-                    'Fuel Flexibility',
-                    'Full-to-full or pre-paid fuel options',
-                  ),
-                  _buildServiceItem(
-                    Icons.support_agent,
-                    '24/7 Customer Support',
-                    'Round-the-clock assistance for any issues',
+                  const SizedBox(width: 30),
+                  Expanded(
+                    child: _buildServiceCard(
+                      Icons.timer,
+                      'Long-term Rentals',
+                      'Special rates for extended rentals with monthly and weekly packages available.',
+                    ),
                   ),
                 ],
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildContactContent() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 80),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1000),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
-            child: Column(
-              children: [
-                const Text(
-                  'Get In Touch',
-                  style: TextStyle(fontSize: 42, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'We\'re here to help 24/7',
-                  style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 60),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildContactInfo(
-                            Icons.phone,
-                            'Phone',
-                            '+1 (555) 123-4567',
-                          ),
-                          const SizedBox(height: 30),
-                          _buildContactInfo(
-                            Icons.email,
-                            'Email',
-                            'info@airportcarrental.com',
-                          ),
-                          const SizedBox(height: 30),
-                          _buildContactInfo(
-                            Icons.location_on,
-                            'Airport Location',
-                            'Terminal 1, Arrival Hall\nMain International Airport',
-                          ),
-                          const SizedBox(height: 30),
-                          _buildContactInfo(
-                            Icons.schedule,
-                            'Operating Hours',
-                            '24/7 - Always Available',
-                          ),
-                        ],
-                      ),
+              ),
+              const SizedBox(height: 30),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: _buildServiceCard(
+                      Icons.local_shipping,
+                      'SUV & Vans',
+                      'Large vehicles for groups, families, or cargo transportation needs.',
                     ),
-                    const SizedBox(width: 60),
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.all(32),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[50],
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.grey[200]!),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Send us a message',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                            TextField(
-                              decoration: InputDecoration(
-                                labelText: 'Name',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                filled: true,
-                                fillColor: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            TextField(
-                              decoration: InputDecoration(
-                                labelText: 'Email',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                filled: true,
-                                fillColor: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            TextField(
-                              maxLines: 4,
-                              decoration: InputDecoration(
-                                labelText: 'Message',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                filled: true,
-                                fillColor: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Message sent successfully!'),
-                                      backgroundColor: Colors.green,
-                                    ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF2196F3),
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                child: const Text(
-                                  'Send Message',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                  ),
+                  const SizedBox(width: 30),
+                  Expanded(
+                    child: _buildServiceCard(
+                      Icons.electric_car,
+                      'Luxury Fleet',
+                      'Premium and luxury vehicles for special occasions and executive travel.',
                     ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                  const SizedBox(width: 30),
+                  Expanded(
+                    child: _buildServiceCard(
+                      Icons.support_agent,
+                      '24/7 Assistance',
+                      'Round-the-clock customer support and emergency roadside assistance.',
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _buildAboutContent() {
+  Widget _buildServiceCard(IconData icon, String title, String description) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 80),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1000),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'About AirportCar Rental',
-                  style: TextStyle(fontSize: 42, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'Your trusted partner for airport car rental services since 2010. We specialize in providing premium vehicles and exceptional service to travelers arriving at major airports worldwide.',
-                  style: TextStyle(fontSize: 18, color: Colors.grey[700], height: 1.6),
-                ),
-                const SizedBox(height: 32),
-                const Text(
-                  'Our Mission',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'To make car rental seamless and stress-free for every traveler. We believe that your journey should start the moment you land, with a reliable vehicle waiting for you.',
-                  style: TextStyle(fontSize: 16, color: Colors.grey[700], height: 1.6),
-                ),
-                const SizedBox(height: 32),
-                const Text(
-                  'Why We\'re Different',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 24),
-                _buildAboutPoint('🚀', 'Instant Availability', 'Real-time fleet management ensures your car is ready when you are'),
-                _buildAboutPoint('💎', 'Premium Quality', 'All vehicles are regularly maintained and thoroughly cleaned'),
-                _buildAboutPoint('🛡️', 'Complete Protection', 'Comprehensive insurance coverage with zero deductible options'),
-                _buildAboutPoint('⚡', 'Fast Process', 'Digital check-in and checkout saves you valuable time'),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFeatureCard(IconData icon, String title, String description, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.all(30),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey[200]!),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 10,
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 20,
             offset: const Offset(0, 4),
           ),
         ],
@@ -887,98 +747,27 @@ class _LandingScreenState extends State<LandingScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: Colors.amber.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, size: 32, color: color),
+            child: Icon(icon, size: 40, color: Colors.amber[700]),
           ),
           const SizedBox(height: 20),
           Text(
             title,
             style: const TextStyle(
-              fontSize: 20,
+              fontSize: 22,
               fontWeight: FontWeight.bold,
+              color: Color(0xFF1a237e),
             ),
           ),
           const SizedBox(height: 12),
           Text(
             description,
             style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-              height: 1.5,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatItem(String number, String label) {
-    return Column(
-      children: [
-        Text(
-          number,
-          style: const TextStyle(
-            fontSize: 48,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF2196F3),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey[600],
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFleetCard(String title, String price, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey[200]!),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, size: 48, color: color),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            price,
-            style: TextStyle(
               fontSize: 16,
               color: Colors.grey[600],
-              fontWeight: FontWeight.w500,
+              height: 1.6,
             ),
           ),
         ],
@@ -986,62 +775,212 @@ class _LandingScreenState extends State<LandingScreen> {
     );
   }
 
-  Widget _buildServiceItem(IconData icon, String title, String description) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 32),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF2196F3).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: const Color(0xFF2196F3), size: 28),
-          ),
-          const SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+  Widget _buildContactSection() {
+    final TextEditingController nameController = TextEditingController();
+    final TextEditingController emailController = TextEditingController();
+    final TextEditingController phoneController = TextEditingController();
+    final TextEditingController messageController = TextEditingController();
+
+    return Container(
+      key: _contactKey,
+      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 40),
+      color: Colors.white,
+      child: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: Column(
+            children: [
+              const Text(
+                'Contact Us',
+                style: TextStyle(
+                  fontSize: 40,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1a237e),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  description,
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.grey[600],
-                    height: 1.5,
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Get in touch with us for any inquiries or booking assistance',
+                style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+              ),
+              const SizedBox(height: 60),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Contact Information
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildContactInfo(
+                          Icons.location_on,
+                          'Airport Terminal',
+                          'Main Terminal, Ground Floor\nAirport City, 12345',
+                        ),
+                        const SizedBox(height: 30),
+                        _buildContactInfo(
+                          Icons.phone,
+                          'Phone',
+                          '+1 (555) 123-4567\n+1 (555) 765-4321',
+                        ),
+                        const SizedBox(height: 30),
+                        _buildContactInfo(
+                          Icons.email,
+                          'Email',
+                          'info@airportrent.com\nsupport@airportrent.com',
+                        ),
+                        const SizedBox(height: 30),
+                        _buildContactInfo(
+                          Icons.schedule,
+                          'Working Hours',
+                          'Open 24/7\nAll days of the week',
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
+                  const SizedBox(width: 80),
+                  // Contact Form
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(40),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 30,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          TextField(
+                            controller: nameController,
+                            decoration: InputDecoration(
+                              labelText: 'Full Name',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          TextField(
+                            controller: emailController,
+                            decoration: InputDecoration(
+                              labelText: 'Email Address',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          TextField(
+                            controller: phoneController,
+                            decoration: InputDecoration(
+                              labelText: 'Phone Number',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          TextField(
+                            controller: messageController,
+                            maxLines: 5,
+                            decoration: InputDecoration(
+                              labelText: 'Message',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 30),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                if (nameController.text.trim().isEmpty ||
+                                    emailController.text.trim().isEmpty ||
+                                    phoneController.text.trim().isEmpty ||
+                                    messageController.text.trim().isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Please fill in all fields',
+                                      ),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Thank you! We will contact you soon.',
+                                      ),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                  nameController.clear();
+                                  emailController.clear();
+                                  phoneController.clear();
+                                  messageController.clear();
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF1a237e),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 20,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: const Text(
+                                'Send Message',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildContactInfo(IconData icon, String title, String info) {
+  Widget _buildContactInfo(IconData icon, String title, String details) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: const Color(0xFF2196F3).withOpacity(0.1),
-            borderRadius: BorderRadius.circular(10),
+            color: const Color(0xFF1a237e).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: const Color(0xFF2196F3), size: 24),
+          child: Icon(icon, color: const Color(0xFF1a237e), size: 30),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 20),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1049,17 +988,18 @@ class _LandingScreenState extends State<LandingScreen> {
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.grey,
+                  color: Color(0xFF1a237e),
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 8),
               Text(
-                info,
-                style: const TextStyle(
+                details,
+                style: TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[600],
+                  height: 1.5,
                 ),
               ),
             ],
@@ -1069,42 +1009,176 @@ class _LandingScreenState extends State<LandingScreen> {
     );
   }
 
-  Widget _buildAboutPoint(String emoji, String title, String description) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            emoji,
-            style: const TextStyle(fontSize: 32),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+  Widget _buildFooter() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 40),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [const Color(0xFF1a237e), const Color(0xFF283593)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: Column(
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: const [
+                            Icon(
+                              Icons.local_airport,
+                              color: Colors.amber,
+                              size: 32,
+                            ),
+                            SizedBox(width: 12),
+                            Text(
+                              'AirportRent',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        Text(
+                          'Your trusted partner for airport car rentals.\nMaking your journey comfortable and memorable.',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 16,
+                            height: 1.6,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  description,
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.grey[600],
-                    height: 1.5,
+                  const SizedBox(width: 80),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Quick Links',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        _buildFooterLink('About Us'),
+                        _buildFooterLink('Our Fleet'),
+                        _buildFooterLink('Booking'),
+                        _buildFooterLink('Contact'),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Services',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        _buildFooterLink('Business Rentals'),
+                        _buildFooterLink('Leisure Travel'),
+                        _buildFooterLink('Long-term Rentals'),
+                        _buildFooterLink('Luxury Fleet'),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Support',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        _buildFooterLink('FAQs'),
+                        _buildFooterLink('Terms & Conditions'),
+                        _buildFooterLink('Privacy Policy'),
+                        _buildFooterLink('Help Center'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 40),
+              const Divider(color: Colors.white24),
+              const SizedBox(height: 30),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '© 2024 AirportRent. All rights reserved.',
+                    style: TextStyle(color: Colors.white70, fontSize: 14),
+                  ),
+                  Row(
+                    children: [
+                      _buildSocialIcon(Icons.facebook),
+                      const SizedBox(width: 15),
+                      _buildSocialIcon(Icons.telegram),
+                      const SizedBox(width: 15),
+                      _buildSocialIcon(Icons.link),
+                    ],
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
+  }
+
+  Widget _buildFooterLink(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: InkWell(
+        onTap: () {},
+        child: Text(
+          text,
+          style: const TextStyle(color: Colors.white70, fontSize: 16),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSocialIcon(IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        shape: BoxShape.circle,
+      ),
+      child: Icon(icon, color: Colors.white, size: 20),
+    );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 }
