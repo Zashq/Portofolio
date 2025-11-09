@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { auth } from '@/main'
 import { onAuthStateChanged } from 'firebase/auth'
 
- 
+// Views
 import Home from '@/views/Home.vue'
 import Products from '@/views/Products.vue'
 import ProductDetail from '@/views/ProductDetail.vue'
@@ -126,7 +126,7 @@ const router = createRouter({
   }
 })
 
- 
+// Navigation guards
 router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
   const isGuest = to.matched.some(record => record.meta.guest)

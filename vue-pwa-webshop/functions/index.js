@@ -8,13 +8,14 @@ admin.initializeApp();
 const db = admin.firestore();
 const messaging = admin.messaging();
 
+// Scheduled function to fetch product data every hour
 exports.scheduledProductFetch = functions.pubsub
   .schedule('every 60 minutes')
   .onRun(async (context) => {
     console.log('Running scheduled product fetch');
     
     try {
-      
+      // Fetch products from FakeStore API
       const response = await axios.get('https://fakestoreapi.com/products');
       const products = response.data;
       
@@ -24,18 +25,18 @@ exports.scheduledProductFetch = functions.pubsub
       for (const product of products) {
         const productRef = db.collection('products').doc(product.id.toString());
         
-        
+        // Get previous product data
         const prevDoc = await productRef.get();
         const prevData = prevDoc.data();
         
-        
+        // Update product
         batch.set(productRef, {
           ...product,
           lastUpdated: timestamp,
           fetchedAt: new Date().toISOString()
         }, { merge: true });
         
-        
+        // Track price history
         const historyRef = db.collection('priceHistory').doc();
         batch.set(historyRef, {
           productId: product.id,
@@ -43,12 +44,12 @@ exports.scheduledProductFetch = functions.pubsub
           timestamp: new Date().toISOString()
         });
         
-        
+        // Check for price drops
         if (prevData && prevData.price > product.price) {
           const priceDrop = prevData.price - product.price;
           const percentDrop = (priceDrop / prevData.price) * 100;
           
-          
+          // Check price alerts
           await checkAndNotifyPriceAlerts(product.id, product.title, prevData.price, product.price, percentDrop);
         }
       }
@@ -56,7 +57,7 @@ exports.scheduledProductFetch = functions.pubsub
       await batch.commit();
       console.log('Product fetch completed successfully');
       
-      
+      // Store fetch metadata
       await db.collection('metadata').doc('lastFetch').set({
         timestamp: timestamp,
         productCount: products.length,
@@ -66,7 +67,7 @@ exports.scheduledProductFetch = functions.pubsub
     } catch (error) {
       console.error('Error fetching products:', error);
       
-      
+      // Store error metadata
       await db.collection('metadata').doc('lastFetch').set({
         timestamp: admin.firestore.FieldValue.serverTimestamp(),
         status: 'error',

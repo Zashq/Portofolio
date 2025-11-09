@@ -108,13 +108,15 @@ export default {
       return props.product.title
     })
     
+    // Simulate sale logic
     const isOnSale = computed(() => {
+      // Random sale for demo (in production, this would come from backend)
       return props.product.id % 3 === 0
     })
     
     const salePercentage = computed(() => {
       if (!isOnSale.value) return 0
-  return Math.floor(Math.random() * 30) + 10
+      return Math.floor(Math.random() * 30) + 10 // 10-40% off
     })
     
     const originalPrice = computed(() => {

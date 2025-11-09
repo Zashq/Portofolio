@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import ProductService from '@/services/productService'
 import { db } from '@/main'
-import { collection, doc, setDoc, getDocs, query, orderBy, limit } from 'firebase/firestore'
+import { collection, doc, setDoc, getDoc, getDocs, query, orderBy, limit } from 'firebase/firestore'
 
 export const useProductsStore = defineStore('products', () => {
   const products = ref([])

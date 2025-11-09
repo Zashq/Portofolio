@@ -243,6 +243,7 @@ export default {
     }
     
     onMounted(() => {
+      // Load initial data
       userStore.checkAuth()
       cartStore.loadCart()
       notificationStore.loadNotifications()

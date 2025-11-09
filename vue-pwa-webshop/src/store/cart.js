@@ -7,34 +7,30 @@ import { useUserStore } from './user'
 export const useCartStore = defineStore('cart', () => {
   const items = ref([])
   const loading = ref(false)
-
-  const itemsCount = computed(() =>
-    items.value.reduce((total, item) => total + (item.quantity || 0), 0)
+  
+  const itemsCount = computed(() => 
+    items.value.reduce((total, item) => total + item.quantity, 0)
   )
-
-  const subtotal = computed(() =>
-    items.value.reduce((total, item) => total + (item.price || 0) * (item.quantity || 0), 0)
+  
+  const subtotal = computed(() => 
+    items.value.reduce((total, item) => total + (item.price * item.quantity), 0)
   )
-
-  const tax = computed(() => subtotal.value * 0.08)
-  const shipping = computed(() => (subtotal.value > 50 ? 0 : 10))
+  
+  const tax = computed(() => subtotal.value * 0.08) // 8% tax
+  
+  const shipping = computed(() => subtotal.value > 50 ? 0 : 10) // Free shipping over $50
+  
   const total = computed(() => subtotal.value + tax.value + shipping.value)
-
-  const saveCartLocally = () => {
-    try {
-      localStorage.setItem('cart', JSON.stringify(items.value))
-    } catch (e) {
-      console.error('Error saving cart locally:', e)
-    }
-  }
 
   const loadCart = async () => {
     const userStore = useUserStore()
-
+    
     // Try to load from localStorage first
     const localCart = localStorage.getItem('cart')
-    if (localCart) items.value = JSON.parse(localCart)
-
+    if (localCart) {
+      items.value = JSON.parse(localCart)
+    }
+    
     // If authenticated, sync with Firestore
     if (userStore.isAuthenticated && userStore.user) {
       try {
@@ -54,15 +50,16 @@ export const useCartStore = defineStore('cart', () => {
 
   const saveCart = async () => {
     const userStore = useUserStore()
-    // Save to localStorage first
+    
+    // Save to localStorage
     saveCartLocally()
-
+    
     // Save to Firestore if authenticated
     if (userStore.isAuthenticated && userStore.user) {
       try {
         await setDoc(doc(db, 'carts', userStore.user.uid), {
           items: items.value,
-          updatedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         })
       } catch (error) {
         console.error('Error saving cart to Firestore:', error)
@@ -70,29 +67,36 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
+  const saveCartLocally = () => {
+    localStorage.setItem('cart', JSON.stringify(items.value))
+  }
+
   const addItem = async (product) => {
-    const existingItem = items.value.find((item) => item.id === product.id)
+    const existingItem = items.value.find(item => item.id === product.id)
+    
     if (existingItem) {
-      existingItem.quantity = (existingItem.quantity || 0) + 1
+      existingItem.quantity++
     } else {
       items.value.push({
         id: product.id,
         title: product.title,
         price: product.price,
         image: product.image,
-        quantity: 1,
-        category: product.category,
+        quantity: 1
       })
     }
-
-    saveCartLocally()
+    
     await saveCart()
+    
+    // Add to historical data
     await addToHistory(product)
+    
     return { success: true }
   }
 
   const updateQuantity = async (productId, quantity) => {
-    const item = items.value.find((item) => item.id === productId)
+    const item = items.value.find(item => item.id === productId)
+    
     if (item) {
       if (quantity <= 0) {
         await removeItem(productId)
@@ -104,7 +108,7 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   const removeItem = async (productId) => {
-    const index = items.value.findIndex((item) => item.id === productId)
+    const index = items.value.findIndex(item => item.id === productId)
     if (index > -1) {
       items.value.splice(index, 1)
       await saveCart()
@@ -118,8 +122,9 @@ export const useCartStore = defineStore('cart', () => {
 
   const addToHistory = async (product) => {
     const userStore = useUserStore()
+    
     if (!userStore.isAuthenticated || !userStore.user) return
-
+    
     try {
       const history = {
         productId: product.id,
@@ -127,17 +132,23 @@ export const useCartStore = defineStore('cart', () => {
         productPrice: product.price,
         action: 'added_to_cart',
         timestamp: new Date().toISOString(),
-        userId: userStore.user.uid,
+        userId: userStore.user.uid
       }
-
-      await setDoc(doc(db, 'history', `${userStore.user.uid}_${Date.now()}`), history)
+      
+      // Store in a subcollection for historical data
+      await setDoc(
+        doc(db, 'history', `${userStore.user.uid}_${Date.now()}`),
+        history
+      )
     } catch (error) {
       console.error('Error adding to history:', error)
     }
   }
 
   const getRecommendations = computed(() => {
-    const categories = [...new Set(items.value.map((item) => item.category).filter(Boolean))]
+    // Simple recommendation based on cart items categories
+    // In production, this would use Firebase Functions with ML
+    const categories = [...new Set(items.value.map(item => item.category).filter(Boolean))]
     return categories
   })
 
@@ -154,6 +165,6 @@ export const useCartStore = defineStore('cart', () => {
     updateQuantity,
     removeItem,
     clearCart,
-    getRecommendations,
+    getRecommendations
   }
 })
