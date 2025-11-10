@@ -1,7 +1,6 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const axios = require('axios');
-const stripe = require('stripe')(functions.config().stripe?.secret_key || 'sk_test_YOUR_STRIPE_SECRET_KEY');
 
 admin.initializeApp();
 
@@ -423,15 +422,11 @@ exports.updateFCMToken = functions.https.onCall(async (data, context) => {
   }
 });
 
+
+
 module.exports = exports;
-
-// Add these functions to your functions/index.js file
-
-const functions = require('firebase-functions');
-const admin = require('firebase-admin');
 const stripe = require('stripe')(functions.config().stripe?.secret_key || 'sk_test_YOUR_KEY');
 
-const db = admin.firestore();
 
 // Create subscription
 exports.createSubscription = functions.https.onCall(async (data, context) => {
@@ -589,4 +584,3 @@ exports.stripeWebhook = functions.https.onRequest(async (req, res) => {
 
   res.json({ received: true });
 });
-
