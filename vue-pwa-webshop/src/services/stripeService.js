@@ -13,6 +13,13 @@ const getStripe = () => {
 
 class StripeService {
   /**
+   * Get Stripe instance
+   */
+  async getStripeInstance() {
+    return await getStripe()
+  }
+
+  /**
    * Create payment intent for checkout
    * @param {number} amount - Amount in dollars (e.g., 99.99)
    * @param {object} metadata - Additional data
