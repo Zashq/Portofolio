@@ -269,7 +269,7 @@ import { useToast } from 'vue-toastification'
 import { loadStripe } from '@stripe/stripe-js'
 import { db, auth, functions } from '@/main'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
-import { httpsCallable } from 'firebase/functions'
+import { httpsCallable, getFunctions } from 'firebase/functions'
 
 export default {
   name: 'CheckoutView',
@@ -281,11 +281,13 @@ export default {
     const step = ref(1)
     const processing = ref(false)
     const stripeLoading = ref(true)
-    const cardError = ref('')
     const orderId = ref('')
     const savePaymentMethod = ref(false)
     const debugInfo = ref('')
-    
+
+    const cardError = ref('')
+    let  elements
+      
     let stripe = null
     let cardElement = null
     
@@ -414,24 +416,32 @@ export default {
         console.log('💳 Processing payment...')
         
         // Create payment intent
-        const createPaymentIntent = httpsCallable(functions, 'createPaymentIntent')
         
-        const response = await createPaymentIntent({
-          amount: grandTotal.value,
-          currency: 'usd',
-          metadata: {
-            orderId: `ORDER-${Date.now()}`,
-            items: JSON.stringify(cartStore.items.map(item => ({
-              id: item.id,
-              title: item.title,
-              quantity: item.quantity,
-              price: item.price
-            }))),
-            shipping: JSON.stringify(shippingInfo.value)
-          }
-        })
+        const createPaymentIntent = httpsCallable(functions, 'createPaymentIntent')
 
-        const { clientSecret } = response.data
+      const resp = await createPaymentIntent({
+        items: cartStore.items.map(it => ({
+          id: String(it.id),
+          qty: Number(it.quantity ?? it.qty ?? 1)   // use your real qty field
+        })),
+        currency: 'usd'
+      })
+
+      const { clientSecret } = resp.data
+      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: cardElement,
+          billing_details: { name: name.value, email: email.value }
+        }
+      })
+
+      if (error) {
+        toast.error(error.message || 'Payment failed')
+        return
+      }
+      router.push({ name: 'Orders', query: { status: 'success', id: paymentIntent.id } })
+
+
         console.log('✅ Payment intent created')
 
         // Confirm payment
@@ -498,43 +508,97 @@ export default {
       }
     }
 
-    onMounted(() => {
-      console.log('🚀 Checkout page mounted')
-      
-      // Check if cart is empty
-      if (cartStore.items.length === 0) {
-        toast.info('Your cart is empty')
-        router.push('/products')
-        return
-      }
-      
-      console.log('Cart items:', cartStore.items.length)
+    onMounted(async () => {
+  // abort if cart empty
+  if (cartStore.items.length === 0) {
+    toast.info('Your cart is empty')
+    router.push('/products')
+    return
+  }
+
+  // publishable key from env
+  const pk = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
+  stripe = await loadStripe(pk)
+  elements = stripe.elements()
+  cardElement = elements.create('card')
+  cardElement.mount('#card-element')
+})
+
+// ✅ the only payment flow – single confirm, no duplicates
+async function handlePayment () {
+  cardError.value = ''
+  if (!stripe || !elements || !cardElement) return
+
+  processing.value = true
+  try {
+    // 1) Create PI on server – send ONLY items (id, qty)
+    const createPaymentIntent = httpsCallable(
+      // set region here if you deployed functions in a region: getFunctions(undefined, 'europe-west1')
+      getFunctions(),
+      'createPaymentIntent'
+    )
+    const { data } = await createPaymentIntent({
+      items: cartStore.items.map(it => ({
+        id: String(it.id),
+        qty: Number(it.quantity ?? it.qty ?? 1)
+      })),
+      currency: 'usd'
     })
+    const clientSecret = data?.clientSecret
+    if (!clientSecret) throw new Error('Missing clientSecret from server')
+
+    // 2) Confirm on client ONCE
+    const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: {
+        card: cardElement,
+        billing_details: {
+          name: shippingInfo.value.name,
+          email: shippingInfo.value.email,
+          phone: shippingInfo.value.phone,
+          address: {
+            line1: shippingInfo.value.address,
+            city: shippingInfo.value.city,
+            postal_code: shippingInfo.value.zipCode
+          }
+        }
+      }
+    })
+
+    if (error) {
+      cardError.value = error.message || 'Payment failed'
+      toast.error(cardError.value)
+      return
+    }
+
+    if (paymentIntent?.status === 'succeeded') {
+      // ✅ success – DO NOT set 'paid' client-side.
+      // Optionally create a local order stub as 'created' if you want a page to land on.
+      // Your webhook will mark it 'paid'.
+      cartStore.clearCart()
+      toast.success('Payment successful')
+      router.push({ name: 'Orders', query: { status: 'success', id: paymentIntent.id } })
+    }
+  } catch (e) {
+    console.error('❌ Payment error:', e)
+    cardError.value = e.message || 'Payment failed'
+    toast.error(cardError.value)
+  } finally {
+    processing.value = false
+  }
+}
 
     onUnmounted(() => {
-      console.log('🔄 Checkout page unmounted')
-      if (cardElement) {
-        cardElement.destroy()
-        console.log('✅ Card element destroyed')
-      }
-    })
+  if (cardElement) cardElement.destroy()
+})
 
-    return {
-      step,
-      shippingInfo,
-      cartStore,
-      processing,
-      stripeLoading,
-      cardError,
-      orderId,
-      savePaymentMethod,
-      debugInfo,
-      rules,
-      grandTotal,
-      proceedToPayment,
-      processPayment
-    }
-  }
+// make sure you return these for the template
+return {
+  step,
+  shippingInfo,
+  cartStore,
+  processing,
+  cardError,
+  handlePayment
 }
 </script>
 

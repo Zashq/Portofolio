@@ -4,6 +4,7 @@ const axios = require('axios');
 
 admin.initializeApp();
 
+const stripe = require('stripe')(functions.config().stripe?.secret_key);
 const db = admin.firestore();
 const messaging = admin.messaging();
 
@@ -240,100 +241,73 @@ exports.deletePriceAlert = functions.https.onCall(async (data, context) => {
 
 // Stripe payment intent creation
 exports.createPaymentIntent = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
+  if (!context.auth) throw new functions.https.HttpsError('unauthenticated', 'Login required');
+
+  const { items = [], currency = 'usd', orderId: incomingOrderId } = data || {};
+  if (!Array.isArray(items) || items.length === 0) {
+    throw new functions.https.HttpsError('invalid-argument', 'items[] required');
   }
-  
-  const { amount, currency = 'usd', metadata = {} } = data;
-  
-  if (!amount || amount < 50) { // Stripe minimum is 50 cents
-    throw new functions.https.HttpsError('invalid-argument', 'Invalid amount');
+
+  // 1) Recompute server-side from Firestore `products/{id}`
+  let totalCents = 0;
+  const normalizedItems = [];
+  for (const it of items) {
+    const pid = String(it.id);
+    const qty = Number(it.qty || 1);
+    if (!pid || qty <= 0) {
+      throw new functions.https.HttpsError('invalid-argument', 'Bad item');
+    }
+
+    const snap = await db.collection('products').doc(pid).get();
+    if (!snap.exists || snap.data().active === false) {
+      throw new functions.https.HttpsError('failed-precondition', `Product ${pid} unavailable`);
+    }
+    const p = snap.data();
+    const unit = Math.round(Number(p.price) * 100); // CENT
+    if (!Number.isFinite(unit) || unit <= 0) {
+      throw new functions.https.HttpsError('failed-precondition', `Invalid price for ${pid}`);
+    }
+
+    totalCents += unit * qty;
+    normalizedItems.push({ id: pid, name: p.title || p.name || pid, price: p.price, qty });
   }
-  
-  try {
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Convert to cents
-      currency,
-      metadata: {
-        ...metadata,
-        userId: context.auth.uid
-      }
-    });
-    
-    return {
-      clientSecret: paymentIntent.client_secret,
-      paymentIntentId: paymentIntent.id
-    };
-  } catch (error) {
-    console.error('Error creating payment intent:', error);
-    throw new functions.https.HttpsError('internal', 'Failed to create payment intent');
+
+  if (totalCents < 50) {
+    throw new functions.https.HttpsError('failed-precondition', 'Minimum is 50 cents');
   }
+
+  // 2) Create or reuse an order doc
+  const uid = context.auth.uid;
+  const orderRef = incomingOrderId
+    ? db.collection('orders').doc(incomingOrderId)
+    : db.collection('orders').doc();
+
+  const orderId = orderRef.id;
+
+  await orderRef.set({
+    uid,
+    items: normalizedItems,
+    amount: totalCents / 100,
+    currency,
+    status: 'created',
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    createdAt: admin.firestore.FieldValue.serverTimestamp()
+  }, { merge: true });
+
+  // 3) Create PaymentIntent with orderId in metadata
+  const pi = await stripe.paymentIntents.create({
+    amount: totalCents,
+    currency,
+    metadata: { orderId, uid }
+  });
+
+  await orderRef.set({
+    paymentIntentId: pi.id
+  }, { merge: true });
+
+  return { clientSecret: pi.client_secret, paymentIntentId: pi.id, orderId };
 });
 
-// Process completed order
-exports.processOrder = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
-  }
-  
-  const { paymentIntentId, items, shippingAddress, total } = data;
-  
-  if (!paymentIntentId || !items || !shippingAddress) {
-    throw new functions.https.HttpsError('invalid-argument', 'Missing required fields');
-  }
-  
-  try {
-    // Verify payment intent
-    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-    
-    if (paymentIntent.status !== 'succeeded') {
-      throw new functions.https.HttpsError('failed-precondition', 'Payment not completed');
-    }
-    
-    // Create order
-    const order = {
-      userId: context.auth.uid,
-      paymentIntentId,
-      items,
-      shippingAddress,
-      total,
-      status: 'processing',
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      orderNumber: generateOrderNumber()
-    };
-    
-    const orderRef = await db.collection('orders').add(order);
-    
-    // Clear user's cart
-    await db.collection('carts').doc(context.auth.uid).delete();
-    
-    // Create notification
-    await db.collection('notifications').add({
-      userId: context.auth.uid,
-      title: 'Order Confirmed',
-      message: `Your order #${order.orderNumber} has been confirmed and is being processed.`,
-      type: 'order',
-      data: {
-        orderId: orderRef.id,
-        orderNumber: order.orderNumber
-      },
-      read: false,
-      timestamp: new Date().toISOString()
-    });
-    
-    // Send confirmation email (you would implement this)
-    // await sendOrderConfirmationEmail(context.auth.uid, order);
-    
-    return {
-      success: true,
-      orderId: orderRef.id,
-      orderNumber: order.orderNumber
-    };
-  } catch (error) {
-    console.error('Error processing order:', error);
-    throw new functions.https.HttpsError('internal', 'Failed to process order');
-  }
-});
 
 // Generate order number
 function generateOrderNumber() {
@@ -421,11 +395,6 @@ exports.updateFCMToken = functions.https.onCall(async (data, context) => {
     throw new functions.https.HttpsError('internal', 'Failed to update FCM token');
   }
 });
-
-
-
-module.exports = exports;
-const stripe = require('stripe')(functions.config().stripe?.secret_key || 'sk_test_YOUR_KEY');
 
 
 // Create subscription
@@ -544,7 +513,6 @@ exports.getSubscriptions = functions.https.onCall(async (data, context) => {
 exports.stripeWebhook = functions.https.onRequest(async (req, res) => {
   const sig = req.headers['stripe-signature'];
   const webhookSecret = functions.config().stripe?.webhook_secret;
-
   let event;
 
   try {
@@ -554,33 +522,51 @@ exports.stripeWebhook = functions.https.onRequest(async (req, res) => {
     return res.status(400).send('Webhook Error: ' + err.message);
   }
 
-  // Handle the event
-  switch (event.type) {
-    case 'customer.subscription.updated':
-    case 'customer.subscription.deleted':
-      const subscription = event.data.object;
-      
-      await db.collection('subscriptions').doc(subscription.id).update({
-        status: subscription.status,
-        currentPeriodStart: subscription.current_period_start,
-        currentPeriodEnd: subscription.current_period_end,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp()
-      });
-      break;
+  try {
+    switch (event.type) {
+      case 'payment_intent.succeeded': {
+        const pi = event.data.object;
+        const orderId = pi.metadata?.orderId;
+        if (orderId) {
+          await db.collection('orders').doc(orderId).set({
+            status: 'paid',
+            paidAt: admin.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+        }
+        break;
+      }
 
-    case 'invoice.payment_succeeded':
-      const invoice = event.data.object;
-      console.log('Payment succeeded:', invoice.id);
-      break;
+      case 'customer.subscription.updated':
+      case 'customer.subscription.deleted': {
+        const subscription = event.data.object;
+        await db.collection('subscriptions').doc(subscription.id).update({
+          status: subscription.status,
+          currentPeriodStart: subscription.current_period_start,
+          currentPeriodEnd: subscription.current_period_end,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+        break;
+      }
 
-    case 'invoice.payment_failed':
-      console.log('Payment failed');
-      break;
+      case 'invoice.payment_succeeded': {
+        const invoice = event.data.object;
+        console.log('Payment succeeded:', invoice.id);
+        break;
+      }
 
-    default:
-  console.log('Unhandled event type ' + event.type);
+      case 'invoice.payment_failed': {
+        console.log('Payment failed');
+        break;
+      }
 
+      default:
+        console.log('Unhandled event type ' + event.type);
+    }
+
+    return res.json({ received: true });
+  } catch (e) {
+    console.error('Webhook handler error:', e);
+    return res.status(500).send('Internal error');
   }
-
-  res.json({ received: true });
 });
+
