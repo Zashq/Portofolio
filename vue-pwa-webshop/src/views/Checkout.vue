@@ -4,165 +4,174 @@
       <v-col cols="12" md="8">
         <h1 class="text-h3 mb-6">Checkout</h1>
         
-        <!-- Progress -->
-        <div class="mb-6">
-          <v-chip :color="step >= 1 ? 'primary' : 'grey'" class="mr-2">
-            {{ step > 1 ? '✓' : '1' }} Shipping
-          </v-chip>
-          <v-chip :color="step >= 2 ? 'primary' : 'grey'" class="mr-2">
-            {{ step > 2 ? '✓' : '2' }} Payment
-          </v-chip>
-          <v-chip :color="step >= 3 ? 'primary' : 'grey'">
-            {{ step >= 3 ? '✓' : '3' }} Confirmation
-          </v-chip>
-        </div>
+        <v-stepper v-model="step" alt-labels>
+          <v-stepper-header>
+            <v-stepper-item 
+              :complete="step > 1" 
+              :value="1" 
+              title="Shipping"
+            ></v-stepper-item>
+            <v-divider></v-divider>
+            <v-stepper-item 
+              :complete="step > 2" 
+              :value="2" 
+              title="Payment"
+            ></v-stepper-item>
+            <v-divider></v-divider>
+            <v-stepper-item 
+              :value="3" 
+              title="Confirmation"
+            ></v-stepper-item>
+          </v-stepper-header>
 
-        <!-- Step 1: Shipping -->
-        <v-card v-show="step === 1" flat class="pa-4 mb-4">
-          <v-card-title>Shipping Information</v-card-title>
-          <v-card-text>
-            <v-text-field
-              v-model="shippingInfo.name"
-              label="Full Name"
-              outlined
-              required
-            ></v-text-field>
+          <v-stepper-window>
+            <!-- Step 1: Shipping Information -->
+            <v-stepper-window-item :value="1">
+              <v-card flat class="pa-4">
+                <v-card-title>Shipping Information</v-card-title>
+                <v-card-text>
+                  <v-text-field
+                    v-model="shippingInfo.name"
+                    label="Full Name"
+                    outlined
+                    required
+                  ></v-text-field>
 
-            <v-text-field
-              v-model="shippingInfo.email"
-              label="Email"
-              type="email"
-              outlined
-              required
-            ></v-text-field>
+                  <v-text-field
+                    v-model="shippingInfo.email"
+                    label="Email"
+                    type="email"
+                    outlined
+                    required
+                  ></v-text-field>
 
-            <v-text-field
-              v-model="shippingInfo.phone"
-              label="Phone Number"
-              outlined
-              required
-            ></v-text-field>
+                  <v-text-field
+                    v-model="shippingInfo.phone"
+                    label="Phone Number"
+                    outlined
+                    required
+                  ></v-text-field>
 
-            <v-text-field
-              v-model="shippingInfo.address"
-              label="Street Address"
-              outlined
-              required
-            ></v-text-field>
+                  <v-text-field
+                    v-model="shippingInfo.address"
+                    label="Street Address"
+                    outlined
+                    required
+                  ></v-text-field>
 
-            <v-row>
-              <v-col cols="12" md="6">
-                <v-text-field
-                  v-model="shippingInfo.city"
-                  label="City"
-                  outlined
-                  required
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-text-field
-                  v-model="shippingInfo.zipCode"
-                  label="ZIP Code"
-                  outlined
-                  required
-                ></v-text-field>
-              </v-col>
-            </v-row>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn 
-              color="primary" 
-              size="large"
-              @click="continueToPayment"
-            >
-              Continue to Payment
-              <v-icon end>mdi-arrow-right</v-icon>
-            </v-btn>
-          </v-card-actions>
-        </v-card>
+                  <v-row>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="shippingInfo.city"
+                        label="City"
+                        outlined
+                        required
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="shippingInfo.zipCode"
+                        label="ZIP Code"
+                        outlined
+                        required
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn 
+                    color="primary" 
+                    size="large"
+                    @click="continueToPayment"
+                  >
+                    Continue to Payment
+                    <v-icon end>mdi-arrow-right</v-icon>
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-stepper-window-item>
 
-        <!-- Step 2: Payment -->
-        <v-card v-show="step === 2" flat class="pa-4 mb-4">
-          <v-card-title>Payment Method</v-card-title>
-          <v-card-text>
-            <v-alert type="info" variant="tonal" class="mb-4">
-              <v-icon start>mdi-information</v-icon>
-              Test: <code>4242 4242 4242 4242</code>, Exp: <code>12/25</code>, CVC: <code>123</code>
-            </v-alert>
+            <!-- Step 2: Payment -->
+            <v-stepper-window-item :value="2">
+              <v-card flat class="pa-4">
+                <v-card-title>Payment Method</v-card-title>
+                <v-card-text>
+                  <v-alert type="info" variant="tonal" class="mb-4">
+                    <v-icon start>mdi-information</v-icon>
+                    Test Mode: Use card <code>4242 4242 4242 4242</code>
+                  </v-alert>
 
-            <!-- Loading -->
-            <div v-if="stripeLoading" class="text-center py-8">
-              <v-progress-circular indeterminate color="primary" size="48"></v-progress-circular>
-              <p class="mt-4">{{ loadingMessage }}</p>
-            </div>
+                  <!-- Loading State -->
+                  <div v-if="loading" class="text-center py-8">
+                    <v-progress-circular 
+                      indeterminate 
+                      color="primary" 
+                      size="48"
+                    ></v-progress-circular>
+                    <p class="mt-4">Processing payment...</p>
+                  </div>
 
-            <!-- Error -->
-            <v-alert v-else-if="stripeError" type="error" class="mb-4">
-              <strong>Error:</strong> {{ stripeError }}
-              <v-btn 
-                variant="outlined" 
-                size="small" 
-                class="mt-2"
-                @click="retryStripe"
-              >
-                <v-icon start>mdi-refresh</v-icon>
-                Retry
-              </v-btn>
-            </v-alert>
+                  <!-- Card Element Container -->
+                  <div v-else id="card-element-container" class="stripe-card-wrapper">
+                    <div id="card-element"></div>
+                    <div v-if="cardError" class="error-message mt-2">
+                      {{ cardError }}
+                    </div>
+                  </div>
+                </v-card-text>
+                <v-card-actions>
+                  <v-btn 
+                    variant="text" 
+                    @click="step = 1"
+                    :disabled="loading"
+                  >
+                    <v-icon start>mdi-arrow-left</v-icon>
+                    Back
+                  </v-btn>
+                  <v-spacer></v-spacer>
+                  <v-btn 
+                    color="success" 
+                    size="large"
+                    :loading="loading"
+                    :disabled="loading"
+                    @click="processPayment"
+                  >
+                    <v-icon start>mdi-lock</v-icon>
+                    Pay ${{ grandTotal.toFixed(2) }}
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-stepper-window-item>
 
-            <!-- Card Element -->
-            <div v-else>
-              <div class="stripe-card-wrapper">
-                <div id="stripe-card"></div>
-              </div>
-              <div v-if="cardError" class="error-message mt-2">
-                <v-icon size="small" color="error">mdi-alert-circle</v-icon>
-                {{ cardError }}
-              </div>
-            </div>
-          </v-card-text>
-          <v-card-actions>
-            <v-btn 
-              variant="text" 
-              @click="step = 1"
-              :disabled="processing"
-            >
-              <v-icon start>mdi-arrow-left</v-icon>
-              Back
-            </v-btn>
-            <v-spacer></v-spacer>
-            <v-btn 
-              color="success" 
-              size="large"
-              :loading="processing"
-              :disabled="processing || stripeLoading || !cardReady"
-              @click="processPayment"
-            >
-              <v-icon start>mdi-lock</v-icon>
-              Pay ${{ grandTotal.toFixed(2) }}
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-
-        <!-- Step 3: Success -->
-        <v-card v-show="step === 3" flat class="pa-4 text-center">
-          <v-icon size="120" color="success" class="mb-4">
-            mdi-check-circle
-          </v-icon>
-          <v-card-title class="text-h4 mb-2">
-            Order Confirmed!
-          </v-card-title>
-          <v-card-text>
-            <p class="text-h6 mb-4">Thank you for your purchase!</p>
-            <p class="mb-4">Order ID: <strong>{{ orderId }}</strong></p>
-            <p>Confirmation sent to {{ shippingInfo.email }}</p>
-          </v-card-text>
-          <v-card-actions class="justify-center">
-            <v-btn color="primary" size="large" to="/orders">View Orders</v-btn>
-            <v-btn variant="outlined" size="large" to="/products">Continue Shopping</v-btn>
-          </v-card-actions>
-        </v-card>
+            <!-- Step 3: Success -->
+            <v-stepper-window-item :value="3">
+              <v-card flat class="pa-4 text-center">
+                <v-icon size="120" color="success" class="mb-4">
+                  mdi-check-circle
+                </v-icon>
+                <v-card-title class="text-h4 mb-2">
+                  Order Confirmed!
+                </v-card-title>
+                <v-card-text>
+                  <p class="text-h6 mb-4">Thank you for your purchase!</p>
+                  <p class="mb-4">
+                    Order ID: <strong>{{ orderId }}</strong>
+                  </p>
+                  <p>A confirmation email has been sent to {{ shippingInfo.email }}</p>
+                </v-card-text>
+                <v-card-actions class="justify-center">
+                  <v-btn color="primary" size="large" to="/orders">
+                    View Orders
+                  </v-btn>
+                  <v-btn variant="outlined" size="large" to="/products">
+                    Continue Shopping
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-stepper-window-item>
+          </v-stepper-window>
+        </v-stepper>
       </v-col>
 
       <!-- Order Summary -->
@@ -171,9 +180,15 @@
           <v-card-title>Order Summary</v-card-title>
           <v-divider></v-divider>
           <v-card-text>
+            <!-- Cart Items -->
             <div v-for="item in cartStore.items" :key="item.id" class="mb-3">
               <div class="d-flex align-center">
-                <v-img :src="item.image" width="60" height="60" class="rounded mr-3"></v-img>
+                <v-img 
+                  :src="item.image" 
+                  width="60" 
+                  height="60" 
+                  class="rounded mr-3"
+                ></v-img>
                 <div class="flex-grow-1">
                   <div class="font-weight-medium">{{ item.title }}</div>
                   <div class="text-caption">Qty: {{ item.quantity }}</div>
@@ -183,7 +198,10 @@
                 </div>
               </div>
             </div>
+
             <v-divider class="my-4"></v-divider>
+
+            <!-- Totals -->
             <div class="d-flex justify-space-between mb-2">
               <span>Subtotal</span>
               <span>${{ cartStore.total.toFixed(2) }}</span>
@@ -196,7 +214,9 @@
               <span>Tax (10%)</span>
               <span>${{ tax.toFixed(2) }}</span>
             </div>
+
             <v-divider class="my-4"></v-divider>
+
             <div class="d-flex justify-space-between text-h6 font-weight-bold">
               <span>Total</span>
               <span>${{ grandTotal.toFixed(2) }}</span>
@@ -209,7 +229,7 @@
 </template>
 
 <script>
-import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '@/store/cart'
 import { useToast } from 'vue-toastification'
@@ -227,11 +247,7 @@ export default {
     const toast = useToast()
     
     const step = ref(1)
-    const processing = ref(false)
-    const stripeLoading = ref(false)
-    const stripeError = ref('')
-    const loadingMessage = ref('')
-    const cardReady = ref(false)
+    const loading = ref(false)
     const cardError = ref('')
     const orderId = ref('')
     
@@ -247,11 +263,13 @@ export default {
       zipCode: ''
     })
 
+    // Computed values
     const tax = computed(() => cartStore.total * 0.1)
     const grandTotal = computed(() => cartStore.total + 5.00 + tax.value)
 
-    // Move to payment step AND initialize Stripe
-    const continueToPayment = async () => {
+    // Continue to payment
+    const continueToPayment = () => {
+      // Validate shipping info
       if (!shippingInfo.value.name || !shippingInfo.value.email || 
           !shippingInfo.value.address || !shippingInfo.value.city || 
           !shippingInfo.value.zipCode) {
@@ -259,122 +277,83 @@ export default {
         return
       }
       
-      console.log('✅ Moving to step 2')
       step.value = 2
       
-      // Wait for Vue to render step 2
-      await nextTick()
-      console.log('✅ nextTick complete')
-      
-      // Small delay for DOM to be ready
+      // Initialize Stripe after moving to payment step
       setTimeout(() => {
-        console.log('⏰ Now initializing Stripe...')
         initStripe()
       }, 500)
     }
 
-    const retryStripe = () => {
-      console.log('🔄 Retrying...')
-      stripeError.value = ''
-      cardReady.value = false
-      stripe = null
-      cardElement = null
-      setTimeout(() => initStripe(), 300)
-    }
-
+    // Initialize Stripe
     const initStripe = async () => {
-      if (stripe) {
-        console.log('⚠️ Already initialized')
-        return
-      }
-
-      console.log('🔧 Initializing Stripe...')
-      stripeLoading.value = true
-      stripeError.value = ''
-      cardReady.value = false
-      loadingMessage.value = 'Loading payment system...'
-      
       try {
+        console.log('Initializing Stripe...')
+        
         const stripeKey = process.env.VUE_APP_STRIPE_PUBLISHABLE_KEY
         if (!stripeKey) {
-          throw new Error('Stripe key missing from .env')
+          throw new Error('Stripe key not configured')
         }
-        console.log('✅ Key found')
 
-        loadingMessage.value = 'Loading Stripe...'
         stripe = await loadStripe(stripeKey)
         if (!stripe) {
           throw new Error('Failed to load Stripe')
         }
-        console.log('✅ Stripe loaded')
 
-        // Wait for container
-        loadingMessage.value = 'Preparing form...'
-        let container = null
-        for (let i = 0; i < 30; i++) {
-          container = document.getElementById('stripe-card')
-          if (container) {
-            console.log(`✅ Container found (attempt ${i + 1})`)
-            break
-          }
-          await new Promise(resolve => setTimeout(resolve, 100))
-        }
-        
-        if (!container) {
-          throw new Error('Payment form did not load. Please refresh the page.')
-        }
+        // Wait for DOM
+        await new Promise(resolve => setTimeout(resolve, 300))
 
-        // Create element
-        loadingMessage.value = 'Creating form...'
         const elements = stripe.elements()
         cardElement = elements.create('card', {
           style: {
             base: {
               fontSize: '16px',
               color: '#424770',
-              '::placeholder': { color: '#aab7c4' },
+              '::placeholder': {
+                color: '#aab7c4',
+              },
             },
-            invalid: { color: '#f44336' },
+            invalid: {
+              color: '#f44336',
+            },
           },
         })
-        console.log('✅ Element created')
 
-        // Mount
-        loadingMessage.value = 'Mounting form...'
-        cardElement.mount('#stripe-card')
-        console.log('✅ Mounted')
+        const container = document.getElementById('card-element')
+        if (!container) {
+          throw new Error('Card element container not found')
+        }
 
-        cardElement.on('ready', () => {
-          console.log('✅ Ready!')
-          cardReady.value = true
-          stripeLoading.value = false
-          toast.success('Payment form ready!')
-        })
-
+        cardElement.mount('#card-element')
+        
         cardElement.on('change', (event) => {
           cardError.value = event.error ? event.error.message : ''
         })
 
+        console.log('✅ Stripe initialized successfully')
       } catch (error) {
-        console.error('❌ Error:', error)
-        stripeLoading.value = false
-        stripeError.value = error.message
-        toast.error(error.message)
+        console.error('Stripe initialization error:', error)
+        toast.error(error.message || 'Failed to initialize payment system')
+        step.value = 1
       }
     }
 
+    // Process payment
     const processPayment = async () => {
       if (!stripe || !cardElement) {
-        toast.error('Not ready')
+        toast.error('Payment system not ready')
         return
       }
 
-      processing.value = true
+      loading.value = true
       cardError.value = ''
 
       try {
-        console.log('💳 Creating intent...')
+        console.log('Creating payment intent...')
+        
+        // Call Firebase Function with ITEMS (not just amount)
         const createPaymentIntent = httpsCallable(functions, 'createPaymentIntent')
+        
         const response = await createPaymentIntent({
           items: cartStore.items.map(item => ({
             id: item.id,
@@ -387,33 +366,28 @@ export default {
         })
 
         const { clientSecret } = response.data
-        console.log('✅ Intent created')
+        console.log('✅ Payment intent created')
 
-        console.log('💳 Creating method...')
-        const { error: pmError, paymentMethod } = await stripe.createPaymentMethod({
-          type: 'card',
-          card: cardElement,
-          billing_details: {
-            name: shippingInfo.value.name,
-            email: shippingInfo.value.email,
-            phone: shippingInfo.value.phone
+        // Confirm payment
+        const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+          payment_method: {
+            card: cardElement,
+            billing_details: {
+              name: shippingInfo.value.name,
+              email: shippingInfo.value.email,
+              phone: shippingInfo.value.phone
+            }
           }
         })
 
-        if (pmError) throw new Error(pmError.message)
-        console.log('✅ Method created')
-
-        console.log('🔒 Confirming...')
-        const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
-          clientSecret,
-          { payment_method: paymentMethod.id }
-        )
-
-        if (confirmError) throw new Error(confirmError.message)
+        if (error) {
+          throw new Error(error.message)
+        }
 
         if (paymentIntent.status === 'succeeded') {
-          console.log('✅ Success!')
+          console.log('✅ Payment successful')
           
+          // Save order
           const user = auth.currentUser
           const orderDoc = await addDoc(collection(db, 'orders'), {
             userId: user?.uid || 'guest',
@@ -430,50 +404,37 @@ export default {
           })
 
           orderId.value = orderDoc.id
+          
+          // Clear cart and move to success
           cartStore.clearCart()
           step.value = 3
           toast.success('Payment successful!')
         }
       } catch (error) {
-        console.error('❌ Payment error:', error)
+        console.error('Payment error:', error)
         cardError.value = error.message
-        toast.error(error.message)
+        toast.error(error.message || 'Payment failed')
       } finally {
-        processing.value = false
+        loading.value = false
       }
     }
 
     onMounted(() => {
-      console.log('🚀 Mounted')
-      
       if (cartStore.items.length === 0) {
-        toast.info('Cart is empty')
+        toast.info('Your cart is empty')
         router.push('/products')
       }
-      
-      // Don't initialize Stripe here!
-      // It will be initialized when user clicks "Continue"
     })
 
     onUnmounted(() => {
-      console.log('👋 Unmounting')
       if (cardElement) {
-        try {
-          cardElement.destroy()
-        } catch (e) {
-          // Element already destroyed
-          console.log('Card element already destroyed')
-        }
+        cardElement.destroy()
       }
     })
 
     return {
       step,
-      processing,
-      stripeLoading,
-      stripeError,
-      loadingMessage,
-      cardReady,
+      loading,
       cardError,
       orderId,
       shippingInfo,
@@ -481,7 +442,6 @@ export default {
       tax,
       grandTotal,
       continueToPayment,
-      retryStripe,
       processPayment
     }
   }
@@ -497,7 +457,7 @@ export default {
   min-height: 60px;
 }
 
-#stripe-card {
+#card-element {
   min-height: 40px;
 }
 
