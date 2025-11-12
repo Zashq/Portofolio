@@ -367,8 +367,9 @@ export default {
 
         const { clientSecret } = response.data
         console.log('✅ Payment intent created')
-
+        console.log('Test')
         // Confirm payment
+        //problematic line below
         const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
           payment_method: {
             card: cardElement,
