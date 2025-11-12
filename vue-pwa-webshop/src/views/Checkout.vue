@@ -112,11 +112,28 @@
                     <p class="mt-4">Processing payment...</p>
                   </div>
 
-                  <!-- Card Element Container -->
-                  <div v-else id="card-element-container" class="stripe-card-wrapper">
-                    <div id="card-element"></div>
-                    <div v-if="cardError" class="error-message mt-2">
-                      {{ cardError }}
+                  <!-- Card Element Container (always in DOM) -->
+                  <div v-else>
+                    <!-- Stripe Initializing Overlay -->
+                    <div v-if="!stripeReady" class="text-center py-8">
+                      <v-progress-circular 
+                        indeterminate 
+                        color="primary" 
+                        size="48"
+                      ></v-progress-circular>
+                      <p class="mt-4">Loading payment form...</p>
+                    </div>
+                    
+                    <!-- Card Element (hidden during initialization) -->
+                    <div 
+                      id="card-element-container" 
+                      class="stripe-card-wrapper"
+                      :style="{ display: stripeReady ? 'block' : 'none' }"
+                    >
+                      <div id="card-element"></div>
+                      <div v-if="cardError" class="error-message mt-2">
+                        {{ cardError }}
+                      </div>
                     </div>
                   </div>
                 </v-card-text>
@@ -134,7 +151,7 @@
                     color="success" 
                     size="large"
                     :loading="loading"
-                    :disabled="loading"
+                    :disabled="loading || !stripeReady"
                     @click="processPayment"
                   >
                     <v-icon start>mdi-lock</v-icon>
@@ -229,7 +246,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '@/store/cart'
 import { useToast } from 'vue-toastification'
@@ -248,10 +265,12 @@ export default {
     
     const step = ref(1)
     const loading = ref(false)
+    const stripeReady = ref(false)
     const cardError = ref('')
     const orderId = ref('')
     
     let stripe = null
+    let elements = null
     let cardElement = null
     
     const shippingInfo = ref({
@@ -268,7 +287,7 @@ export default {
     const grandTotal = computed(() => cartStore.total + 5.00 + tax.value)
 
     // Continue to payment
-    const continueToPayment = () => {
+    const continueToPayment = async () => {
       // Validate shipping info
       if (!shippingInfo.value.name || !shippingInfo.value.email || 
           !shippingInfo.value.address || !shippingInfo.value.city || 
@@ -279,16 +298,18 @@ export default {
       
       step.value = 2
       
-      // Initialize Stripe after moving to payment step
+      // Wait for Vue to update the DOM, then initialize Stripe
+      await nextTick()
       setTimeout(() => {
         initStripe()
-      }, 500)
+      }, 300)
     }
 
     // Initialize Stripe
     const initStripe = async () => {
       try {
         console.log('Initializing Stripe...')
+        stripeReady.value = false
         
         const stripeKey = process.env.VUE_APP_STRIPE_PUBLISHABLE_KEY
         if (!stripeKey) {
@@ -300,10 +321,20 @@ export default {
           throw new Error('Failed to load Stripe')
         }
 
-        // Wait for DOM
+        // Wait for DOM to be ready
         await new Promise(resolve => setTimeout(resolve, 300))
 
-        const elements = stripe.elements()
+        // Check if container exists
+        const container = document.getElementById('card-element')
+        if (!container) {
+          console.error('Container not found in DOM')
+          throw new Error('Card element container not found')
+        }
+
+        console.log('✅ Container found, creating card element...')
+
+        // Create elements and card element
+        elements = stripe.elements()
         cardElement = elements.create('card', {
           style: {
             base: {
@@ -319,18 +350,21 @@ export default {
           },
         })
 
-        const container = document.getElementById('card-element')
-        if (!container) {
-          throw new Error('Card element container not found')
-        }
-
+        // Mount the card element
         cardElement.mount('#card-element')
         
+        // Wait for mount to complete
+        await new Promise(resolve => setTimeout(resolve, 200))
+        
+        // Add event listener for card changes
         cardElement.on('change', (event) => {
           cardError.value = event.error ? event.error.message : ''
         })
 
-        console.log('✅ Stripe initialized successfully')
+        // Mark as ready
+        stripeReady.value = true
+        console.log('✅ Stripe initialized and mounted successfully')
+        
       } catch (error) {
         console.error('Stripe initialization error:', error)
         toast.error(error.message || 'Failed to initialize payment system')
@@ -340,8 +374,9 @@ export default {
 
     // Process payment
     const processPayment = async () => {
-      if (!stripe || !cardElement) {
-        toast.error('Payment system not ready')
+      // Validate stripe is ready
+      if (!stripe || !cardElement || !stripeReady.value) {
+        toast.error('Payment system not ready. Please try again.')
         return
       }
 
@@ -367,25 +402,29 @@ export default {
 
         const { clientSecret } = response.data
         console.log('✅ Payment intent created')
-        console.log('Test')
-        // Confirm payment
-        //problematic line below
-        const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+
+        // Confirm payment with proper error handling
+        const result = await stripe.confirmCardPayment(clientSecret, {
           payment_method: {
             card: cardElement,
             billing_details: {
               name: shippingInfo.value.name,
               email: shippingInfo.value.email,
-              phone: shippingInfo.value.phone
+              phone: shippingInfo.value.phone,
+              address: {
+                line1: shippingInfo.value.address,
+                city: shippingInfo.value.city,
+                postal_code: shippingInfo.value.zipCode
+              }
             }
           }
         })
 
-        if (error) {
-          throw new Error(error.message)
+        if (result.error) {
+          throw new Error(result.error.message)
         }
 
-        if (paymentIntent.status === 'succeeded') {
+        if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
           console.log('✅ Payment successful')
           
           // Save order
@@ -393,7 +432,7 @@ export default {
           const orderDoc = await addDoc(collection(db, 'orders'), {
             userId: user?.uid || 'guest',
             orderId: `ORDER-${Date.now()}`,
-            paymentIntentId: paymentIntent.id,
+            paymentIntentId: result.paymentIntent.id,
             items: cartStore.items,
             shipping: shippingInfo.value,
             subtotal: cartStore.total,
@@ -428,14 +467,20 @@ export default {
     })
 
     onUnmounted(() => {
+      // Clean up Stripe elements
       if (cardElement) {
-        cardElement.destroy()
+        try {
+          cardElement.destroy()
+        } catch (error) {
+          console.error('Error destroying card element:', error)
+        }
       }
     })
 
     return {
       step,
       loading,
+      stripeReady,
       cardError,
       orderId,
       shippingInfo,
