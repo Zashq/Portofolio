@@ -6,7 +6,7 @@ let stripePromise = null
 
 const getStripe = () => {
   if (!stripePromise) {
-    stripePromise = loadStripe(process.env.VUE_APP_STRIPE_PUBLISHABLE_KEY)
+    stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
   }
   return stripePromise
 }

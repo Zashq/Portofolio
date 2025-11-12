@@ -1,10 +1,5 @@
 <template>
   <v-container>
-    <!-- Debug Info (remove in production) -->
-    <v-alert v-if="debugInfo" type="warning" dismissible class="mb-4">
-      <strong>Debug Info:</strong> {{ debugInfo }}
-    </v-alert>
-
     <v-row>
       <v-col cols="12" md="8">
         <h1 class="text-h3 mb-6">Checkout</h1>
@@ -15,20 +10,17 @@
               :complete="step > 1" 
               :value="1" 
               title="Shipping"
-              icon="mdi-truck"
             ></v-stepper-item>
             <v-divider></v-divider>
             <v-stepper-item 
               :complete="step > 2" 
               :value="2" 
               title="Payment"
-              icon="mdi-credit-card"
             ></v-stepper-item>
             <v-divider></v-divider>
             <v-stepper-item 
               :value="3" 
               title="Confirmation"
-              icon="mdi-check-circle"
             ></v-stepper-item>
           </v-stepper-header>
 
@@ -38,65 +30,60 @@
               <v-card flat class="pa-4">
                 <v-card-title>Shipping Information</v-card-title>
                 <v-card-text>
-                  <v-form ref="shippingForm">
-                    <v-text-field
-                      v-model="shippingInfo.name"
-                      label="Full Name"
-                      :rules="[rules.required]"
-                      outlined
-                      prepend-inner-icon="mdi-account"
-                    ></v-text-field>
+                  <v-text-field
+                    v-model="shippingInfo.name"
+                    label="Full Name"
+                    outlined
+                    required
+                  ></v-text-field>
 
-                    <v-text-field
-                      v-model="shippingInfo.email"
-                      label="Email"
-                      :rules="[rules.required, rules.email]"
-                      outlined
-                      prepend-inner-icon="mdi-email"
-                    ></v-text-field>
+                  <v-text-field
+                    v-model="shippingInfo.email"
+                    label="Email"
+                    type="email"
+                    outlined
+                    required
+                  ></v-text-field>
 
-                    <v-text-field
-                      v-model="shippingInfo.phone"
-                      label="Phone Number"
-                      :rules="[rules.required]"
-                      outlined
-                      prepend-inner-icon="mdi-phone"
-                    ></v-text-field>
+                  <v-text-field
+                    v-model="shippingInfo.phone"
+                    label="Phone Number"
+                    outlined
+                    required
+                  ></v-text-field>
 
-                    <v-text-field
-                      v-model="shippingInfo.address"
-                      label="Street Address"
-                      :rules="[rules.required]"
-                      outlined
-                      prepend-inner-icon="mdi-home"
-                    ></v-text-field>
+                  <v-text-field
+                    v-model="shippingInfo.address"
+                    label="Street Address"
+                    outlined
+                    required
+                  ></v-text-field>
 
-                    <v-row>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="shippingInfo.city"
-                          label="City"
-                          :rules="[rules.required]"
-                          outlined
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="shippingInfo.zipCode"
-                          label="ZIP Code"
-                          :rules="[rules.required]"
-                          outlined
-                        ></v-text-field>
-                      </v-col>
-                    </v-row>
-                  </v-form>
+                  <v-row>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="shippingInfo.city"
+                        label="City"
+                        outlined
+                        required
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="shippingInfo.zipCode"
+                        label="ZIP Code"
+                        outlined
+                        required
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn 
                     color="primary" 
                     size="large"
-                    @click="proceedToPayment"
+                    @click="continueToPayment"
                   >
                     Continue to Payment
                     <v-icon end>mdi-arrow-right</v-icon>
@@ -108,40 +95,55 @@
             <!-- Step 2: Payment -->
             <v-stepper-window-item :value="2">
               <v-card flat class="pa-4">
-                <v-card-title>Payment Information</v-card-title>
+                <v-card-title>Payment Method</v-card-title>
                 <v-card-text>
                   <v-alert type="info" variant="tonal" class="mb-4">
                     <v-icon start>mdi-information</v-icon>
-                    <strong>Test Mode:</strong> Use card <code>4242 4242 4242 4242</code>, 
-                    any future date, any 3 digits for CVC
+                    Test Mode: Card <code>4242 4242 4242 4242</code>, Exp <code>12/25</code>, CVC <code>123</code>
                   </v-alert>
 
-                  <!-- Loading state -->
+                  <!-- Loading State -->
                   <div v-if="stripeLoading" class="text-center py-8">
-                    <v-progress-circular indeterminate color="primary" size="48"></v-progress-circular>
-                    <p class="mt-4">Loading payment form...</p>
+                    <v-progress-circular 
+                      indeterminate 
+                      color="primary" 
+                      size="48"
+                    ></v-progress-circular>
+                    <p class="mt-4">{{ loadingMessage }}</p>
                   </div>
 
-                  <!-- Stripe Card Element -->
-                  <div v-else class="stripe-card-wrapper">
-                    <div id="card-element" class="stripe-card-element"></div>
+                  <!-- Error State -->
+                  <v-alert v-else-if="stripeError" type="error" class="mb-4">
+                    <strong>Payment system error:</strong>
+                    <p class="text-body-2 mt-1">{{ stripeError }}</p>
+                    <v-btn 
+                      variant="outlined" 
+                      size="small" 
+                      class="mt-2"
+                      @click="retryStripeInit"
+                    >
+                      <v-icon start>mdi-refresh</v-icon>
+                      Retry
+                    </v-btn>
+                  </v-alert>
+
+                  <!-- Card Element - Always in DOM when on step 2 -->
+                  <!-- KEEP THIS IN THE DOM; just hide when not active -->
+                  <div v-show="step === 2">
+                    <div class="stripe-card-wrapper">
+                      <div id="stripe-card-element" class="card-element"></div>
+                    </div>
                     <div v-if="cardError" class="error-message mt-2">
                       <v-icon size="small" color="error">mdi-alert-circle</v-icon>
                       {{ cardError }}
                     </div>
                   </div>
 
-                  <v-checkbox
-                    v-if="!stripeLoading"
-                    v-model="savePaymentMethod"
-                    label="Save payment method for future purchases"
-                    class="mt-4"
-                  ></v-checkbox>
                 </v-card-text>
                 <v-card-actions>
                   <v-btn 
                     variant="text" 
-                    @click="step = 1"
+                    @click="goBackToShipping"
                     :disabled="processing"
                   >
                     <v-icon start>mdi-arrow-left</v-icon>
@@ -152,17 +154,17 @@
                     color="success" 
                     size="large"
                     :loading="processing"
-                    :disabled="processing || stripeLoading"
+                    :disabled="processing || stripeLoading || !cardReady"
                     @click="processPayment"
                   >
                     <v-icon start>mdi-lock</v-icon>
-                    Pay ${{ cartStore.total.toFixed(2) }}
+                    Pay ${{ grandTotal.toFixed(2) }}
                   </v-btn>
                 </v-card-actions>
               </v-card>
             </v-stepper-window-item>
 
-            <!-- Step 3: Confirmation -->
+            <!-- Step 3: Success -->
             <v-stepper-window-item :value="3">
               <v-card flat class="pa-4 text-center">
                 <v-icon size="120" color="success" class="mb-4">
@@ -172,29 +174,17 @@
                   Order Confirmed!
                 </v-card-title>
                 <v-card-text>
-                  <p class="text-h6 mb-4">
-                    Thank you for your purchase!
-                  </p>
+                  <p class="text-h6 mb-4">Thank you for your purchase!</p>
                   <p class="mb-4">
                     Order ID: <strong>{{ orderId }}</strong>
                   </p>
-                  <p>
-                    A confirmation email has been sent to {{ shippingInfo.email }}
-                  </p>
+                  <p>A confirmation email has been sent to {{ shippingInfo.email }}</p>
                 </v-card-text>
                 <v-card-actions class="justify-center">
-                  <v-btn 
-                    color="primary" 
-                    size="large"
-                    to="/orders"
-                  >
+                  <v-btn color="primary" size="large" to="/orders">
                     View Orders
                   </v-btn>
-                  <v-btn 
-                    variant="outlined" 
-                    size="large"
-                    to="/products"
-                  >
+                  <v-btn variant="outlined" size="large" to="/products">
                     Continue Shopping
                   </v-btn>
                 </v-card-actions>
@@ -210,31 +200,28 @@
           <v-card-title>Order Summary</v-card-title>
           <v-divider></v-divider>
           <v-card-text>
-            <v-list>
-              <v-list-item
-                v-for="item in cartStore.items"
-                :key="item.id"
-                class="px-0"
-              >
-                <template v-slot:prepend>
-                  <v-avatar size="50" rounded>
-                    <v-img :src="item.image"></v-img>
-                  </v-avatar>
-                </template>
-                <v-list-item-title>{{ item.title }}</v-list-item-title>
-                <v-list-item-subtitle>
-                  Qty: {{ item.quantity }} × ${{ item.price.toFixed(2) }}
-                </v-list-item-subtitle>
-                <template v-slot:append>
-                  <span class="font-weight-bold">
-                    ${{ (item.price * item.quantity).toFixed(2) }}
-                  </span>
-                </template>
-              </v-list-item>
-            </v-list>
+            <!-- Cart Items -->
+            <div v-for="item in cartStore.items" :key="item.id" class="mb-3">
+              <div class="d-flex align-center">
+                <v-img 
+                  :src="item.image" 
+                  width="60" 
+                  height="60" 
+                  class="rounded mr-3"
+                ></v-img>
+                <div class="flex-grow-1">
+                  <div class="font-weight-medium">{{ item.title }}</div>
+                  <div class="text-caption">Qty: {{ item.quantity }}</div>
+                </div>
+                <div class="font-weight-bold">
+                  ${{ (item.price * item.quantity).toFixed(2) }}
+                </div>
+              </div>
+            </div>
 
             <v-divider class="my-4"></v-divider>
 
+            <!-- Totals -->
             <div class="d-flex justify-space-between mb-2">
               <span>Subtotal</span>
               <span>${{ cartStore.total.toFixed(2) }}</span>
@@ -244,8 +231,8 @@
               <span>$5.00</span>
             </div>
             <div class="d-flex justify-space-between mb-2">
-              <span>Tax</span>
-              <span>${{ (cartStore.total * 0.1).toFixed(2) }}</span>
+              <span>Tax (10%)</span>
+              <span>${{ tax.toFixed(2) }}</span>
             </div>
 
             <v-divider class="my-4"></v-divider>
@@ -262,17 +249,18 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '@/store/cart'
 import { useToast } from 'vue-toastification'
 import { loadStripe } from '@stripe/stripe-js'
-import { db, auth, functions } from '@/main'
+import { functions, db, auth } from '@/main'
+import { httpsCallable } from 'firebase/functions'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
-import { httpsCallable, getFunctions } from 'firebase/functions'
 
 export default {
   name: 'CheckoutView',
+  
   setup() {
     const router = useRouter()
     const cartStore = useCartStore()
@@ -280,15 +268,15 @@ export default {
     
     const step = ref(1)
     const processing = ref(false)
-    const stripeLoading = ref(true)
-    const orderId = ref('')
-    const savePaymentMethod = ref(false)
-    const debugInfo = ref('')
-
+    const stripeLoading = ref(false)
+    const stripeError = ref('')
+    const loadingMessage = ref('Initializing...')
+    const cardReady = ref(false)
     const cardError = ref('')
-    let  elements
-      
+    const orderId = ref('')
+    
     let stripe = null
+    let elements = null
     let cardElement = null
     
     const shippingInfo = ref({
@@ -300,69 +288,119 @@ export default {
       zipCode: ''
     })
 
-    const rules = {
-      required: value => !!value || 'This field is required',
-      email: value => {
-        const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        return pattern.test(value) || 'Invalid email address'
-      }
-    }
+    
+    // Computed values
+    const tax = computed(() => cartStore.total * 0.1)
+    const grandTotal = computed(() => cartStore.total + 5.00 + tax.value)
 
-    const grandTotal = computed(() => {
-      return cartStore.total + 5.00 + (cartStore.total * 0.1)
+    // Watch for step changes
+    watch(step, async (newStep) => {
+      if (newStep === 2 && !stripe) {
+        // Wait for next tick to ensure DOM is updated
+        await nextTick()
+        // Add extra delay to be absolutely sure
+        setTimeout(() => {
+          initStripe()
+        }, 300)
+      }
     })
 
-    const proceedToPayment = () => {
+    // Continue to payment
+    const continueToPayment = () => {
+      // Validate shipping info
       if (!shippingInfo.value.name || !shippingInfo.value.email || 
-          !shippingInfo.value.phone || !shippingInfo.value.address ||
-          !shippingInfo.value.city || !shippingInfo.value.zipCode) {
-        toast.error('Please fill in all shipping information')
+          !shippingInfo.value.address || !shippingInfo.value.city || 
+          !shippingInfo.value.zipCode) {
+        toast.error('Please fill in all required fields')
         return
       }
-      step.value = 2
       
-      // Initialize Stripe when moving to payment step
-      if (!stripe && !stripeLoading.value) {
-        initializeStripe()
-      }
+      step.value = 2
     }
 
-    const initializeStripe = async () => {
+    // Go back to shipping
+    const goBackToShipping = () => {
+      step.value = 1
+    }
+
+    // Retry Stripe initialization
+    const retryStripeInit = () => {
+      stripeError.value = ''
+      cardReady.value = false
+      stripe = null
+      elements = null
+      cardElement = null
+      
+      setTimeout(() => {
+        initStripe()
+      }, 300)
+    }
+
+    // Wait for container to exist in DOM
+    const waitForContainer = (selector, maxAttempts = 20) => {
+      return new Promise((resolve, reject) => {
+        let attempts = 0
+        
+        const checkContainer = () => {
+          attempts++
+          const container = document.querySelector(selector)
+          
+          if (container) {
+            console.log(`✅ Container found after ${attempts} attempts`)
+            resolve(container)
+          } else if (attempts >= maxAttempts) {
+            reject(new Error(`Container ${selector} not found after ${maxAttempts} attempts`))
+          } else {
+            console.log(`⏳ Waiting for container... (attempt ${attempts}/${maxAttempts})`)
+            setTimeout(checkContainer, 100)
+          }
+        }
+        
+        checkContainer()
+      })
+    }
+
+    // Initialize Stripe
+    const initStripe = async () => {
+      if (stripe) {
+        console.log('✅ Stripe already initialized')
+        return
+      }
+
       console.log('🔧 Initializing Stripe...')
       stripeLoading.value = true
+      stripeError.value = ''
+      cardReady.value = false
+      loadingMessage.value = 'Connecting to payment system...'
       
       try {
-        // Check if Stripe key is available
+        // Check Stripe key
         const stripeKey = process.env.VUE_APP_STRIPE_PUBLISHABLE_KEY
-        
         if (!stripeKey) {
-          throw new Error('Stripe publishable key not found. Please add VUE_APP_STRIPE_PUBLISHABLE_KEY to your .env file')
+          throw new Error('Stripe key not configured. Add VUE_APP_STRIPE_PUBLISHABLE_KEY to your .env file')
         }
 
         console.log('✅ Stripe key found:', stripeKey.substring(0, 15) + '...')
-        
+        loadingMessage.value = 'Loading Stripe...'
+
         // Load Stripe
         stripe = await loadStripe(stripeKey)
-        
         if (!stripe) {
-          throw new Error('Failed to load Stripe. Please check your internet connection.')
+          throw new Error('Failed to load Stripe. Check your internet connection.')
         }
 
-        console.log('✅ Stripe loaded successfully')
-        
-        // Wait a bit for the DOM to be ready
-        await new Promise(resolve => setTimeout(resolve, 100))
-        
-        // Check if card element container exists
-        const cardContainer = document.getElementById('card-element')
-        if (!cardContainer) {
-          throw new Error('Card element container not found in DOM')
-        }
+        console.log('✅ Stripe loaded')
+        loadingMessage.value = 'Preparing payment form...'
 
-        console.log('✅ Card container found')
-        
-        // Create card element
-        const elements = stripe.elements()
+        // Wait for container to be in DOM
+        console.log('⏳ Waiting for container...')
+        await waitForContainer('#stripe-card-element')
+
+        console.log('✅ Container ready')
+        loadingMessage.value = 'Creating payment form...'
+
+        // Create elements
+        elements = stripe.elements()
         cardElement = elements.create('card', {
           style: {
             base: {
@@ -375,37 +413,49 @@ export default {
             },
             invalid: {
               color: '#f44336',
-              iconColor: '#f44336'
             },
           },
         })
-        
+
         console.log('✅ Card element created')
-        
+        loadingMessage.value = 'Mounting payment form...'
+
         // Mount card element
-        cardElement.mount('#card-element')
-        
+        cardElement.mount('#stripe-card-element')
         console.log('✅ Card element mounted')
-        
-        // Listen for card errors
+
+        // Wait for ready event
+        cardElement.on('ready', () => {
+          console.log('✅ Card element ready for input')
+          cardReady.value = true
+          stripeLoading.value = false
+          toast.success('Payment form ready!')
+        })
+
+        // Listen for changes
         cardElement.on('change', (event) => {
           cardError.value = event.error ? event.error.message : ''
         })
 
-        stripeLoading.value = false
         console.log('✅ Stripe initialization complete')
         
       } catch (error) {
         console.error('❌ Stripe initialization error:', error)
         stripeLoading.value = false
-        debugInfo.value = error.message
-        toast.error(error.message || 'Failed to initialize payment system')
+        stripeError.value = error.message
+        toast.error(error.message)
       }
     }
 
+    // Process payment
     const processPayment = async () => {
       if (!stripe || !cardElement) {
-        toast.error('Payment system not ready. Please refresh the page.')
+        toast.error('Payment system not ready. Please try refreshing the page.')
+        return
+      }
+
+      if (!cardReady.value) {
+        toast.error('Card form is not ready. Please wait a moment.')
         return
       }
 
@@ -413,67 +463,71 @@ export default {
       cardError.value = ''
 
       try {
-        console.log('💳 Processing payment...')
+        console.log('💳 Starting payment process...')
         
         // Create payment intent
-        
         const createPaymentIntent = httpsCallable(functions, 'createPaymentIntent')
+        
+        console.log('📦 Sending cart items to backend:', cartStore.items.length)
+        
+        const response = await createPaymentIntent({
+          items: cartStore.items.map(item => ({
+            id: item.id,
+            title: item.title,
+            price: item.price,
+            quantity: item.quantity,
+            image: item.image
+          })),
+          shipping: shippingInfo.value
+        })
 
-      const resp = await createPaymentIntent({
-        items: cartStore.items.map(it => ({
-          id: String(it.id),
-          qty: Number(it.quantity ?? it.qty ?? 1)   // use your real qty field
-        })),
-        currency: 'usd'
-      })
-
-      const { clientSecret } = resp.data
-      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: cardElement,
-          billing_details: { name: name.value, email: email.value }
-        }
-      })
-
-      if (error) {
-        toast.error(error.message || 'Payment failed')
-        return
-      }
-      router.push({ name: 'Orders', query: { status: 'success', id: paymentIntent.id } })
-
-
+        const { clientSecret } = response.data
         console.log('✅ Payment intent created')
 
+        // Create payment method from card
+        console.log('💳 Creating payment method...')
+        
+        const { error: pmError, paymentMethod } = await stripe.createPaymentMethod({
+          type: 'card',
+          card: cardElement,
+          billing_details: {
+            name: shippingInfo.value.name,
+            email: shippingInfo.value.email,
+            phone: shippingInfo.value.phone,
+            address: {
+              line1: shippingInfo.value.address,
+              city: shippingInfo.value.city,
+              postal_code: shippingInfo.value.zipCode
+            }
+          }
+        })
+
+        if (pmError) {
+          throw new Error(pmError.message)
+        }
+
+        console.log('✅ Payment method created')
+
         // Confirm payment
-        const { error, paymentIntent } = await stripe.confirmCardPayment(
+        console.log('🔒 Confirming payment...')
+        
+        const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
           clientSecret,
           {
-            payment_method: {
-              card: cardElement,
-              billing_details: {
-                name: shippingInfo.value.name,
-                email: shippingInfo.value.email,
-                phone: shippingInfo.value.phone,
-                address: {
-                  line1: shippingInfo.value.address,
-                  city: shippingInfo.value.city,
-                  postal_code: shippingInfo.value.zipCode
-                }
-              }
-            }
+            payment_method: paymentMethod.id
           }
         )
 
-        if (error) {
-          throw new Error(error.message)
+        if (confirmError) {
+          throw new Error(confirmError.message)
         }
 
         if (paymentIntent.status === 'succeeded') {
-          console.log('✅ Payment successful')
+          console.log('✅ Payment successful!')
           
-          // Save order to Firebase
+          // Save order
           const user = auth.currentUser
-          const orderData = {
+          const orderDoc = await addDoc(collection(db, 'orders'), {
             userId: user?.uid || 'guest',
             orderId: `ORDER-${Date.now()}`,
             paymentIntentId: paymentIntent.id,
@@ -481,21 +535,17 @@ export default {
             shipping: shippingInfo.value,
             subtotal: cartStore.total,
             shippingCost: 5.00,
-            tax: cartStore.total * 0.1,
+            tax: tax.value,
             total: grandTotal.value,
             status: 'paid',
             createdAt: serverTimestamp()
-          }
+          })
 
-          const docRef = await addDoc(collection(db, 'orders'), orderData)
-          orderId.value = docRef.id
-          
+          orderId.value = orderDoc.id
           console.log('✅ Order saved:', orderId.value)
-
-          // Clear cart
-          cartStore.clearCart()
           
-          // Move to confirmation
+          // Clear cart and show success
+          cartStore.clearCart()
           step.value = 3
           toast.success('Payment successful!')
         }
@@ -508,97 +558,47 @@ export default {
       }
     }
 
-    onMounted(async () => {
-  // abort if cart empty
-  if (cartStore.items.length === 0) {
-    toast.info('Your cart is empty')
-    router.push('/products')
-    return
-  }
-
-  // publishable key from env
-  const pk = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
-  stripe = await loadStripe(pk)
-  elements = stripe.elements()
-  cardElement = elements.create('card')
-  cardElement.mount('#card-element')
-})
-
-// ✅ the only payment flow – single confirm, no duplicates
-async function handlePayment () {
-  cardError.value = ''
-  if (!stripe || !elements || !cardElement) return
-
-  processing.value = true
-  try {
-    // 1) Create PI on server – send ONLY items (id, qty)
-    const createPaymentIntent = httpsCallable(
-      // set region here if you deployed functions in a region: getFunctions(undefined, 'europe-west1')
-      getFunctions(),
-      'createPaymentIntent'
-    )
-    const { data } = await createPaymentIntent({
-      items: cartStore.items.map(it => ({
-        id: String(it.id),
-        qty: Number(it.quantity ?? it.qty ?? 1)
-      })),
-      currency: 'usd'
+    onMounted(() => {
+      console.log('🚀 Checkout page mounted')
+      
+      if (cartStore.items.length === 0) {
+        toast.info('Your cart is empty')
+        router.push('/products')
+      }
     })
-    const clientSecret = data?.clientSecret
-    if (!clientSecret) throw new Error('Missing clientSecret from server')
 
-    // 2) Confirm on client ONCE
-    const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-      payment_method: {
-        card: cardElement,
-        billing_details: {
-          name: shippingInfo.value.name,
-          email: shippingInfo.value.email,
-          phone: shippingInfo.value.phone,
-          address: {
-            line1: shippingInfo.value.address,
-            city: shippingInfo.value.city,
-            postal_code: shippingInfo.value.zipCode
-          }
+    onUnmounted(() => {
+      console.log('🔄 Checkout unmounting')
+      
+      if (cardElement) {
+        try {
+          cardElement.destroy()
+          console.log('✅ Card element destroyed')
+        } catch (e) {
+          console.log('Card element already destroyed')
         }
       }
     })
 
-    if (error) {
-      cardError.value = error.message || 'Payment failed'
-      toast.error(cardError.value)
-      return
+    return {
+      step,
+      processing,
+      stripeLoading,
+      stripeError,
+      loadingMessage,
+      cardReady,
+      cardError,
+      orderId,
+      shippingInfo,
+      cartStore,
+      tax,
+      grandTotal,
+      continueToPayment,
+      goBackToShipping,
+      retryStripeInit,
+      processPayment
     }
-
-    if (paymentIntent?.status === 'succeeded') {
-      // ✅ success – DO NOT set 'paid' client-side.
-      // Optionally create a local order stub as 'created' if you want a page to land on.
-      // Your webhook will mark it 'paid'.
-      cartStore.clearCart()
-      toast.success('Payment successful')
-      router.push({ name: 'Orders', query: { status: 'success', id: paymentIntent.id } })
-    }
-  } catch (e) {
-    console.error('❌ Payment error:', e)
-    cardError.value = e.message || 'Payment failed'
-    toast.error(cardError.value)
-  } finally {
-    processing.value = false
   }
-}
-
-    onUnmounted(() => {
-  if (cardElement) cardElement.destroy()
-})
-
-// make sure you return these for the template
-return {
-  step,
-  shippingInfo,
-  cartStore,
-  processing,
-  cardError,
-  handlePayment
 }
 </script>
 
@@ -611,7 +611,7 @@ return {
   min-height: 60px;
 }
 
-.stripe-card-element {
+#stripe-card-element {
   min-height: 40px;
 }
 
@@ -624,6 +624,6 @@ code {
   background: #f5f5f5;
   padding: 2px 6px;
   border-radius: 3px;
-  font-family: 'Courier New', monospace;
+  font-size: 13px;
 }
 </style>
