@@ -102,20 +102,26 @@
                     Test Mode: Use card <code>4242 4242 4242 4242</code>
                   </v-alert>
 
-                  <!-- Loading State -->
-                  <div v-if="loading" class="text-center py-8">
-                    <v-progress-circular 
-                      indeterminate 
-                      color="primary" 
-                      size="48"
-                    ></v-progress-circular>
-                    <p class="mt-4">Processing payment...</p>
-                  </div>
+                  <!-- Card Element Container (always in DOM when on payment step) -->
+                  <div>
+                    <!-- Loading Overlay (shown on top during payment) -->
+                    <div 
+                      v-if="loading" 
+                      class="loading-overlay text-center py-8"
+                    >
+                      <v-progress-circular 
+                        indeterminate 
+                        color="primary" 
+                        size="48"
+                      ></v-progress-circular>
+                      <p class="mt-4">Processing payment...</p>
+                    </div>
 
-                  <!-- Card Element Container (always in DOM) -->
-                  <div v-else>
                     <!-- Stripe Initializing Overlay -->
-                    <div v-if="!stripeReady" class="text-center py-8">
+                    <div 
+                      v-if="!stripeReady && !loading" 
+                      class="text-center py-8"
+                    >
                       <v-progress-circular 
                         indeterminate 
                         color="primary" 
@@ -124,11 +130,14 @@
                       <p class="mt-4">Loading payment form...</p>
                     </div>
                     
-                    <!-- Card Element (hidden during initialization) -->
+                    <!-- Card Element (always kept in DOM, just hidden) -->
                     <div 
                       id="card-element-container" 
                       class="stripe-card-wrapper"
-                      :style="{ display: stripeReady ? 'block' : 'none' }"
+                      :style="{ 
+                        display: stripeReady && !loading ? 'block' : 'none',
+                        opacity: loading ? 0.5 : 1 
+                      }"
                     >
                       <div id="card-element"></div>
                       <div v-if="cardError" class="error-message mt-2">
@@ -320,6 +329,7 @@ export default {
         if (!stripe) {
           throw new Error('Failed to load Stripe')
         }
+        console.log('✅ Stripe loaded')
 
         // Wait for DOM to be ready
         await new Promise(resolve => setTimeout(resolve, 300))
@@ -330,8 +340,7 @@ export default {
           console.error('Container not found in DOM')
           throw new Error('Card element container not found')
         }
-
-        console.log('✅ Container found, creating card element...')
+        console.log('✅ Container found')
 
         // Create elements and card element
         elements = stripe.elements()
@@ -349,12 +358,18 @@ export default {
             },
           },
         })
+        console.log('✅ Card element created')
 
         // Mount the card element
         cardElement.mount('#card-element')
         
         // Wait for mount to complete
         await new Promise(resolve => setTimeout(resolve, 200))
+        
+        // Verify mount
+        const mountedContainer = document.getElementById('card-element')
+        const hasIframe = !!mountedContainer?.querySelector('iframe')
+        console.log('✅ Card element mounted (iframe present:', hasIframe + ')')
         
         // Add event listener for card changes
         cardElement.on('change', (event) => {
@@ -363,7 +378,7 @@ export default {
 
         // Mark as ready
         stripeReady.value = true
-        console.log('✅ Stripe initialized and mounted successfully')
+        console.log('✅ Stripe initialization complete\n')
         
       } catch (error) {
         console.error('Stripe initialization error:', error)
@@ -384,9 +399,16 @@ export default {
       cardError.value = ''
 
       try {
-        console.log('Creating payment intent...')
+        console.log('=== PAYMENT DEBUG START ===')
+        console.log('1. Initial state:')
+        console.log('   - Stripe:', !!stripe)
+        console.log('   - Card element:', !!cardElement)
+        console.log('   - Stripe ready:', stripeReady.value)
+        console.log('   - Container in DOM:', !!document.getElementById('card-element'))
         
-        // Call Firebase Function with ITEMS (not just amount)
+        console.log('\n2. Creating payment intent...')
+        
+        // Call Firebase Function with ITEMS
         const createPaymentIntent = httpsCallable(functions, 'createPaymentIntent')
         
         const response = await createPaymentIntent({
@@ -401,9 +423,17 @@ export default {
         })
 
         const { clientSecret } = response.data
-        console.log('✅ Payment intent created')
+        console.log('   ✅ Payment intent created')
+        
+        // Verify element is still available
+        console.log('\n3. Pre-confirmation checks:')
+        console.log('   - Card element exists:', !!cardElement)
+        console.log('   - Container in DOM:', !!document.getElementById('card-element'))
+        console.log('   - Container has iframe:', !!document.getElementById('card-element')?.querySelector('iframe'))
 
-        // Confirm payment with proper error handling
+        console.log('\n4. Confirming payment...')
+        
+        // Confirm payment
         const result = await stripe.confirmCardPayment(clientSecret, {
           payment_method: {
             card: cardElement,
@@ -421,11 +451,14 @@ export default {
         })
 
         if (result.error) {
+          console.error('   ❌ Payment error:', result.error)
           throw new Error(result.error.message)
         }
 
         if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
-          console.log('✅ Payment successful')
+          console.log('   ✅ Payment successful!')
+          console.log('   - Payment Intent ID:', result.paymentIntent.id)
+          console.log('=== PAYMENT DEBUG END ===\n')
           
           // Save order
           const user = auth.currentUser
@@ -451,7 +484,18 @@ export default {
           toast.success('Payment successful!')
         }
       } catch (error) {
-        console.error('Payment error:', error)
+        console.error('=== PAYMENT ERROR ===')
+        console.error('Error:', error)
+        console.error('Error message:', error.message)
+        
+        // Debug: Check element state on error
+        console.log('\nElement state on error:')
+        console.log('- Stripe:', !!stripe)
+        console.log('- Card element:', !!cardElement)
+        console.log('- Container in DOM:', !!document.getElementById('card-element'))
+        console.log('- Container visible:', document.getElementById('card-element-container')?.style.display)
+        console.log('===================\n')
+        
         cardError.value = error.message
         toast.error(error.message || 'Payment failed')
       } finally {
@@ -468,9 +512,11 @@ export default {
 
     onUnmounted(() => {
       // Clean up Stripe elements
+      console.log('Component unmounting, cleaning up...')
       if (cardElement) {
         try {
           cardElement.destroy()
+          console.log('Card element destroyed')
         } catch (error) {
           console.error('Error destroying card element:', error)
         }
@@ -495,12 +541,27 @@ export default {
 </script>
 
 <style scoped>
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.95);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 .stripe-card-wrapper {
   border: 1px solid #e0e0e0;
   border-radius: 4px;
   padding: 16px;
   background: white;
   min-height: 60px;
+  position: relative;
 }
 
 #card-element {
