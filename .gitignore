@@ -9,6 +9,10 @@ vue-pwa-webshop/README.md
 vue-pwa-webshop/README.md
 vue-pwa-webshop/PROJECT_SUMMARY.md
 vue-pwa-webshop/node_modules/.cache/eslint/1c452757.json
+.env
+.env.*
+*.env
+vue-pwa-webshop/functions/node_modules
 =======
 >>>>>>> Stashed changes
 vue-pwa-webshop/node_modules/.cache/eslint/1c452757.json
