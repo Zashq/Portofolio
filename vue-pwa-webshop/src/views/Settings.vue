@@ -9,27 +9,6 @@
 
     <v-row>
       <v-col cols="12" md="8">
-        <!-- Display Settings -->
-        <v-card class="mb-4">
-          <v-card-title>Display Settings</v-card-title>
-          <v-card-text>
-            <v-select
-              v-model="settings.theme"
-              :items="['light', 'dark', 'auto']"
-              label="Theme"
-              outlined
-              dense
-            ></v-select>
-
-            <v-select
-              v-model="settings.language"
-              :items="['English', 'Spanish', 'French', 'German']"
-              label="Language"
-              outlined
-              dense
-            ></v-select>
-          </v-card-text>
-        </v-card>
 
         <!-- Notification Settings -->
         <v-card class="mb-4">
@@ -95,12 +74,7 @@
               hide-details
             ></v-switch>
 
-            <v-divider class="my-4"></v-divider>
-
-            <v-btn variant="text" color="error">
-              <v-icon left>mdi-download</v-icon>
-              Download My Data
-            </v-btn>
+            
           </v-card-text>
         </v-card>
 
@@ -138,11 +112,11 @@
             <v-list density="compact">
               <v-list-item>
                 <v-list-item-title>Version</v-list-item-title>
-                <v-list-item-subtitle>1.0.0</v-list-item-subtitle>
+                <v-list-item-subtitle>1.2.0</v-list-item-subtitle>
               </v-list-item>
               <v-list-item>
                 <v-list-item-title>Build</v-list-item-title>
-                <v-list-item-subtitle>2025.01.01</v-list-item-subtitle>
+                <v-list-item-subtitle>2025.11.13</v-list-item-subtitle>
               </v-list-item>
             </v-list>
           </v-card-text>

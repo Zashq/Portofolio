@@ -198,8 +198,6 @@ export default {
         loading.value = true
         
         // Load user subscription info
-        subscription.value = await alertService.getUserSubscription()
-        alertLimit.value = alertService.getAlertLimit(subscription.value?.tier || 'free')
         
         // Load active alerts
         alerts.value = await alertService.getUserAlerts()
