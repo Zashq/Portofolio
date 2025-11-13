@@ -30,6 +30,14 @@ class AlertService {
         throw new Error('You already have an alert for this product')
       }
 
+      // Check alert limit based on subscription tier
+      const userDoc = await this.getUserSubscription()
+      const alertLimit = this.getAlertLimit(userDoc?.tier || 'free')
+      
+      if (existingAlerts.length >= alertLimit && alertLimit !== -1) {
+        throw new Error(`Alert limit reached. Upgrade to Premium for unlimited alerts.`)
+      }
+
       const alertData = {
         userId: user.uid,
         productId: productId.toString(),
@@ -134,6 +142,31 @@ class AlertService {
     } catch (error) {
       console.error('Error getting triggered alerts:', error)
       return []
+    }
+  }
+
+  /**
+   * Get user's subscription info
+   */
+  async getUserSubscription() {
+    try {
+      const user = auth.currentUser
+      if (!user) return null
+
+      const q = query(
+        collection(db, 'users'),
+        where('userId', '==', user.uid)
+      )
+
+      const querySnapshot = await getDocs(q)
+      if (!querySnapshot.empty) {
+        return querySnapshot.docs[0].data()
+      }
+
+      return null
+    } catch (error) {
+      console.error('Error getting user subscription:', error)
+      return null
     }
   }
 
