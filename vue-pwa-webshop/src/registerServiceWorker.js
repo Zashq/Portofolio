@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 
 import { register } from 'register-service-worker'
 
@@ -21,7 +20,6 @@ if (process.env.NODE_ENV === 'production') {
     },
     updated () {
       console.log('New content is available; please refresh.')
-      // Show notification to user
       if ('Notification' in window && Notification.permission === 'granted') {
         new Notification('VueShop Update', {
           body: 'A new version is available. Please refresh the page.',

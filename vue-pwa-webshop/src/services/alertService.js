@@ -7,14 +7,13 @@ import {
   getDocs, 
   deleteDoc, 
   doc,
+  getDoc,
   serverTimestamp,
   orderBy 
 } from 'firebase/firestore'
 
 class AlertService {
-  /**
-   * Create a new price alert
-   */
+
   async createAlert(productId, productTitle, productImage, currentPrice, targetPrice) {
     try {
       const user = auth.currentUser
@@ -22,15 +21,16 @@ class AlertService {
         throw new Error('User must be logged in to create alerts')
       }
 
-      // Check if user already has an alert for this product
+      console.log('Creating alert for user:', user.uid)
+
       const existingAlerts = await this.getUserAlerts()
-      const hasAlert = existingAlerts.some(alert => alert.productId === productId)
+      const hasAlert = existingAlerts.some(alert => alert.productId === productId.toString())
       
       if (hasAlert) {
         throw new Error('You already have an alert for this product')
       }
 
-      // Check alert limit based on subscription tier
+
       const userDoc = await this.getUserSubscription()
       const alertLimit = this.getAlertLimit(userDoc?.tier || 'free')
       
@@ -40,6 +40,7 @@ class AlertService {
 
       const alertData = {
         userId: user.uid,
+        userEmail: user.email || '',
         productId: productId.toString(),
         productTitle,
         productImage,
@@ -50,7 +51,9 @@ class AlertService {
         triggeredAt: null
       }
 
+      console.log('Creating alert with data:', alertData)
       const docRef = await addDoc(collection(db, 'priceAlerts'), alertData)
+      console.log('Alert created with ID:', docRef.id)
       
       return {
         id: docRef.id,
@@ -63,44 +66,87 @@ class AlertService {
     }
   }
 
-  /**
-   * Get all alerts for current user
-   */
+
   async getUserAlerts() {
     try {
       const user = auth.currentUser
-      if (!user) return []
+      if (!user) {
+        console.log('No user logged in')
+        return []
+      }
 
-      const q = query(
-        collection(db, 'priceAlerts'),
-        where('userId', '==', user.uid),
-        where('active', '==', true),
-        orderBy('createdAt', 'desc')
-      )
+      console.log('Fetching alerts for user:', user.uid)
 
-      const querySnapshot = await getDocs(q)
-      const alerts = []
+      try {
+        const q = query(
+          collection(db, 'priceAlerts'),
+          where('userId', '==', user.uid),
+          where('active', '==', true),
+          orderBy('createdAt', 'desc')
+        )
 
-      querySnapshot.forEach((doc) => {
-        alerts.push({
-          id: doc.id,
-          ...doc.data()
+        const querySnapshot = await getDocs(q)
+        const alerts = []
+
+        querySnapshot.forEach((doc) => {
+          const data = doc.data()
+          alerts.push({
+            id: doc.id,
+            ...data,
+            createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt
+          })
         })
-      })
 
-      return alerts
+        console.log('Alerts fetched with orderBy:', alerts.length)
+        return alerts
+      } catch (indexError) {
+        if (indexError.code === 'failed-precondition' || indexError.message.includes('index')) {
+          console.warn('⚠️ Missing Firestore index! Falling back to simple query.')
+          console.log('Create index here:', indexError.message)
+          
+          const simpleQuery = query(
+            collection(db, 'priceAlerts'),
+            where('userId', '==', user.uid),
+            where('active', '==', true)
+          )
+
+          const querySnapshot = await getDocs(simpleQuery)
+          const alerts = []
+
+          querySnapshot.forEach((doc) => {
+            const data = doc.data()
+            alerts.push({
+              id: doc.id,
+              ...data,
+              createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt
+            })
+          })
+
+          alerts.sort((a, b) => {
+            const dateA = new Date(a.createdAt)
+            const dateB = new Date(b.createdAt)
+            return dateB - dateA 
+          })
+
+          console.log('Alerts fetched without orderBy:', alerts.length)
+          return alerts
+        } else {
+          throw indexError
+        }
+      }
     } catch (error) {
       console.error('Error getting user alerts:', error)
+      console.error('Error code:', error.code)
+      console.error('Error message:', error.message)
       return []
     }
   }
 
-  /**
-   * Delete an alert
-   */
   async deleteAlert(alertId) {
     try {
+      console.log('Deleting alert:', alertId)
       await deleteDoc(doc(db, 'priceAlerts', alertId))
+      console.log('Alert deleted successfully')
       return true
     } catch (error) {
       console.error('Error deleting alert:', error)
@@ -108,76 +154,115 @@ class AlertService {
     }
   }
 
-  /**
-   * Get triggered alerts (notifications)
-   */
   async getTriggeredAlerts() {
     try {
       const user = auth.currentUser
       if (!user) return []
 
-      const q = query(
-        collection(db, 'notifications'),
-        where('userId', '==', user.uid),
-        where('type', '==', 'price_drop'),
-        orderBy('createdAt', 'desc')
-      )
+      console.log('Fetching notifications for user:', user.uid)
 
-      const querySnapshot = await getDocs(q)
-      const notifications = []
+      try {
+        const q = query(
+          collection(db, 'notifications'),
+          where('userId', '==', user.uid),
+          where('type', '==', 'price_drop'),
+          orderBy('createdAt', 'desc')
+        )
 
-      querySnapshot.forEach((doc) => {
-        const data = doc.data()
-        notifications.push({
-          id: doc.id,
-          productTitle: data.data?.productTitle || 'Product',
-          oldPrice: data.data?.oldPrice || 0,
-          newPrice: data.data?.newPrice || 0,
-          percentDrop: data.data?.percentDrop || 0,
-          createdAt: data.createdAt
+        const querySnapshot = await getDocs(q)
+        const notifications = []
+
+        querySnapshot.forEach((doc) => {
+          const data = doc.data()
+          notifications.push({
+            id: doc.id,
+            productTitle: data.data?.productTitle || 'Product',
+            productImage: data.data?.productImage || '',
+            oldPrice: data.data?.oldPrice || 0,
+            newPrice: data.data?.newPrice || 0,
+            percentDrop: data.data?.percentDrop || 0,
+            createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt
+          })
         })
-      })
 
-      return notifications
+        console.log('Notifications fetched:', notifications.length)
+        return notifications
+      } catch (indexError) {
+        if (indexError.code === 'failed-precondition' || indexError.message.includes('index')) {
+          console.warn('⚠️ Missing notifications index! Falling back to simple query.')
+          
+          const simpleQuery = query(
+            collection(db, 'notifications'),
+            where('userId', '==', user.uid),
+            where('type', '==', 'price_drop')
+          )
+
+          const querySnapshot = await getDocs(simpleQuery)
+          const notifications = []
+
+          querySnapshot.forEach((doc) => {
+            const data = doc.data()
+            notifications.push({
+              id: doc.id,
+              productTitle: data.data?.productTitle || 'Product',
+              productImage: data.data?.productImage || '',
+              oldPrice: data.data?.oldPrice || 0,
+              newPrice: data.data?.newPrice || 0,
+              percentDrop: data.data?.percentDrop || 0,
+              createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt
+            })
+          })
+
+          notifications.sort((a, b) => {
+            const dateA = new Date(a.createdAt)
+            const dateB = new Date(b.createdAt)
+            return dateB - dateA
+          })
+
+          console.log('Notifications fetched without orderBy:', notifications.length)
+          return notifications
+        } else {
+          throw indexError
+        }
+      }
     } catch (error) {
       console.error('Error getting triggered alerts:', error)
       return []
     }
   }
 
-  /**
-   * Get user's subscription info
-   */
+
   async getUserSubscription() {
     try {
       const user = auth.currentUser
-      if (!user) return null
+      if (!user) return { tier: 'free' }
 
-      const q = query(
-        collection(db, 'users'),
-        where('userId', '==', user.uid)
-      )
+      const userDocRef = doc(db, 'users', user.uid)
+      const userDoc = await getDoc(userDocRef)
 
-      const querySnapshot = await getDocs(q)
-      if (!querySnapshot.empty) {
-        return querySnapshot.docs[0].data()
+      if (userDoc.exists()) {
+        const data = userDoc.data()
+        console.log('User subscription:', data.tier || 'free')
+        return {
+          tier: data.tier || data.subscriptionTier || 'free',
+          ...data
+        }
       }
 
-      return null
+      console.log('No user document found, using free tier')
+      return { tier: 'free' }
     } catch (error) {
       console.error('Error getting user subscription:', error)
-      return null
+      return { tier: 'free' }
     }
   }
 
-  /**
-   * Get alert limit based on tier
-   */
+
   getAlertLimit(tier) {
     const limits = {
       free: 3,
-      premium: -1, // unlimited
-      pro: -1 // unlimited
+      premium: 20,
+      pro: -1 
     }
     return limits[tier] || 3
   }

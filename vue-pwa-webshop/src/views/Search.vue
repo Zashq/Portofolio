@@ -152,7 +152,6 @@ export default {
         results.value = productsStore.searchProducts(searchQuery.value)
         currentPage.value = 1
         
-        // Update URL
         router.push({ query: { q: searchQuery.value } })
       } catch (error) {
         console.error('Search error:', error)
