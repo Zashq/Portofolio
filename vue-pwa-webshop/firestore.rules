@@ -17,14 +17,14 @@ service cloud.firestore {
     
     match /priceHistory/{historyId} {
       allow read: if isSignedIn();
-      allow write: if false; // Only Firebase Functions can write
+      allow write: if false;
     }
     
     match /users/{userId} {
       allow read: if isSignedIn() && isOwner(userId);
       allow create: if isSignedIn() && isOwner(userId);
       allow update: if isSignedIn() && isOwner(userId);
-      allow delete: if false; // Users cannot delete themselves
+      allow delete: if false; 
     }
     
     match /carts/{userId} {
@@ -36,7 +36,7 @@ service cloud.firestore {
                      resource.data.userId == request.auth.uid;
       allow create: if isSignedIn() && 
                        request.resource.data.userId == request.auth.uid;
-      allow update, delete: if false; // Orders are immutable
+      allow update, delete: if false; 
     }
     
     match /priceAlerts/{alertId} {
@@ -54,18 +54,18 @@ service cloud.firestore {
       allow read: if isSignedIn() && 
                      resource.data.userId == request.auth.uid;
       allow update: if isSignedIn() && 
-                       resource.data.userId == request.auth.uid; // To mark as read
-      allow create, delete: if false; // Only Firebase Functions can create/delete
+                       resource.data.userId == request.auth.uid; 
+      allow create, delete: if false; 
     }
     
     match /analytics/{date} {
       allow read: if isSignedIn();
-      allow write: if false; // Only Firebase Functions can write
+      allow write: if false;
     }
     
     match /metadata/{doc} {
       allow read: if true;
-      allow write: if false; // Only Firebase Functions can write
+      allow write: if false;
     }
   }
 }
