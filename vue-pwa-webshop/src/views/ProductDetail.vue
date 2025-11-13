@@ -207,10 +207,8 @@ export default {
         product.value = await productsStore.getProductById(route.params.id)
         
         if (product.value) {
-          // Set suggested target price (10% less than current)
           targetPrice.value = (product.value.price * 0.9).toFixed(2)
           
-          // Check if user already has an alert for this product
           await checkExistingAlert()
         }
       } catch (error) {

@@ -102,9 +102,7 @@
                     Test Mode: Use card <code>4242 4242 4242 4242</code>
                   </v-alert>
 
-                  <!-- Card Element Container (always in DOM when on payment step) -->
                   <div>
-                    <!-- Loading Overlay (shown on top during payment) -->
                     <div 
                       v-if="loading" 
                       class="loading-overlay text-center py-8"
@@ -130,7 +128,7 @@
                       <p class="mt-4">Loading payment form...</p>
                     </div>
                     
-                    <!-- Card Element (always kept in DOM, just hidden) -->
+                    <!-- Card Element  -->
                     <div 
                       id="card-element-container" 
                       class="stripe-card-wrapper"
@@ -291,13 +289,10 @@ export default {
       zipCode: ''
     })
 
-    // Computed values
     const tax = computed(() => cartStore.total * 0.1)
     const grandTotal = computed(() => cartStore.total + 5.00 + tax.value)
 
-    // Continue to payment
     const continueToPayment = async () => {
-      // Validate shipping info
       if (!shippingInfo.value.name || !shippingInfo.value.email || 
           !shippingInfo.value.address || !shippingInfo.value.city || 
           !shippingInfo.value.zipCode) {
@@ -307,14 +302,12 @@ export default {
       
       step.value = 2
       
-      // Wait for Vue to update the DOM, then initialize Stripe
       await nextTick()
       setTimeout(() => {
         initStripe()
       }, 300)
     }
 
-    // Initialize Stripe
     const initStripe = async () => {
       try {
         console.log('Initializing Stripe...')
@@ -331,10 +324,8 @@ export default {
         }
         console.log('✅ Stripe loaded')
 
-        // Wait for DOM to be ready
         await new Promise(resolve => setTimeout(resolve, 300))
 
-        // Check if container exists
         const container = document.getElementById('card-element')
         if (!container) {
           console.error('Container not found in DOM')
@@ -342,7 +333,6 @@ export default {
         }
         console.log('✅ Container found')
 
-        // Create elements and card element
         elements = stripe.elements()
         cardElement = elements.create('card', {
           style: {
@@ -360,23 +350,18 @@ export default {
         })
         console.log('✅ Card element created')
 
-        // Mount the card element
         cardElement.mount('#card-element')
         
-        // Wait for mount to complete
         await new Promise(resolve => setTimeout(resolve, 200))
         
-        // Verify mount
         const mountedContainer = document.getElementById('card-element')
         const hasIframe = !!mountedContainer?.querySelector('iframe')
         console.log('✅ Card element mounted (iframe present:', hasIframe + ')')
         
-        // Add event listener for card changes
         cardElement.on('change', (event) => {
           cardError.value = event.error ? event.error.message : ''
         })
 
-        // Mark as ready
         stripeReady.value = true
         console.log('✅ Stripe initialization complete\n')
         
@@ -387,9 +372,7 @@ export default {
       }
     }
 
-    // Process payment
     const processPayment = async () => {
-      // Validate stripe is ready
       if (!stripe || !cardElement || !stripeReady.value) {
         toast.error('Payment system not ready. Please try again.')
         return
@@ -408,7 +391,6 @@ export default {
         
         console.log('\n2. Creating payment intent...')
         
-        // Call Firebase Function with ITEMS
         const createPaymentIntent = httpsCallable(functions, 'createPaymentIntent')
         
         const response = await createPaymentIntent({
@@ -425,7 +407,6 @@ export default {
         const { clientSecret } = response.data
         console.log('   ✅ Payment intent created')
         
-        // Verify element is still available
         console.log('\n3. Pre-confirmation checks:')
         console.log('   - Card element exists:', !!cardElement)
         console.log('   - Container in DOM:', !!document.getElementById('card-element'))
@@ -433,7 +414,6 @@ export default {
 
         console.log('\n4. Confirming payment...')
         
-        // Confirm payment
         const result = await stripe.confirmCardPayment(clientSecret, {
           payment_method: {
             card: cardElement,
@@ -460,7 +440,6 @@ export default {
           console.log('   - Payment Intent ID:', result.paymentIntent.id)
           console.log('=== PAYMENT DEBUG END ===\n')
           
-          // Save order
           const user = auth.currentUser
           const orderDoc = await addDoc(collection(db, 'orders'), {
             userId: user?.uid || 'guest',
@@ -478,7 +457,6 @@ export default {
 
           orderId.value = orderDoc.id
           
-          // Clear cart and move to success
           cartStore.clearCart()
           step.value = 3
           toast.success('Payment successful!')
@@ -488,7 +466,6 @@ export default {
         console.error('Error:', error)
         console.error('Error message:', error.message)
         
-        // Debug: Check element state on error
         console.log('\nElement state on error:')
         console.log('- Stripe:', !!stripe)
         console.log('- Card element:', !!cardElement)
@@ -511,7 +488,6 @@ export default {
     })
 
     onUnmounted(() => {
-      // Clean up Stripe elements
       console.log('Component unmounting, cleaning up...')
       if (cardElement) {
         try {

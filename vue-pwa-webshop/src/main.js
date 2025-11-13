@@ -30,14 +30,12 @@ const firebaseConfig = {
   measurementId: process.env.VUE_APP_FIREBASE_MEASUREMENT_ID || "your-measurement-id"
 }
 
-// Initialize Firebase
 const firebaseApp = initializeApp(firebaseConfig)
 export const auth = getAuth(firebaseApp)
 export const db = getFirestore(firebaseApp)
 export const functions = getFunctions(firebaseApp)
 export const messaging = 'Notification' in window ? getMessaging(firebaseApp) : null
 
-// Request notification permission and get token
 if (messaging) {
   Notification.requestPermission().then((permission) => {
     if (permission === 'granted') {
@@ -46,7 +44,6 @@ if (messaging) {
       }).then((currentToken) => {
         if (currentToken) {
           console.log('FCM Token:', currentToken)
-          // Save token to Firestore for user
           localStorage.setItem('fcmToken', currentToken)
         }
       }).catch((err) => {
@@ -55,10 +52,8 @@ if (messaging) {
     }
   })
 
-  // Handle foreground messages
   onMessage(messaging, (payload) => {
     console.log('Message received. ', payload)
-  // Show notification using Vue Toastification
     const app = document.getElementById('app').__vue_app__
     if (app) {
       app.config.globalProperties.$toast.info(payload.notification.body, {
@@ -68,7 +63,6 @@ if (messaging) {
   })
 }
 
-// Vuetify configuration
 const vuetify = createVuetify({
   components,
   directives,
@@ -101,7 +95,6 @@ const vuetify = createVuetify({
   }
 })
 
-// Toast configuration
 const toastOptions = {
   position: "top-right",
   timeout: 5000,

@@ -197,14 +197,11 @@ export default {
       try {
         loading.value = true
         
-        // Load user subscription info
         subscription.value = await alertService.getUserSubscription()
         alertLimit.value = alertService.getAlertLimit(subscription.value?.tier || 'free')
         
-        // Load active alerts
         alerts.value = await alertService.getUserAlerts()
         
-        // Load triggered notifications
         triggeredAlerts.value = await alertService.getTriggeredAlerts()
         
       } catch (error) {
@@ -227,7 +224,6 @@ export default {
         deletingId.value = alertToDelete.value.id
         await alertService.deleteAlert(alertToDelete.value.id)
         
-        // Remove from local array
         alerts.value = alerts.value.filter(a => a.id !== alertToDelete.value.id)
         
         toast.success('Alert deleted successfully')

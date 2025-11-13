@@ -173,6 +173,45 @@ exports.stripeWebhook = functions.https.onRequest(async (req, res) => {
 });
 
 // ============================================
+// PRICE ALERT CREATION
+// ============================================
+
+exports.createPriceAlert = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError(
+      'unauthenticated',
+      'Be kell jelentkezned árfigyeléshez.'
+    );
+  }
+
+  const { productId, targetPrice, productTitle, productImage } = data || {};
+
+  if (!productId || typeof targetPrice !== 'number' || targetPrice <= 0) {
+    throw new functions.https.HttpsError(
+      'invalid-argument',
+      'Hibás productId vagy targetPrice.'
+    );
+  }
+
+  const alertRef = db.collection('priceAlerts').doc();
+
+  await alertRef.set({
+    userId: context.auth.uid,
+    productId: productId.toString(),
+    targetPrice,
+    active: true,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    lastNotifiedAt: null,
+    productTitle: productTitle || null,
+    productImage: productImage || null
+    // ide rakhatsz email mezőt is későbbi e-mail értesítéshez
+  });
+
+  return { id: alertRef.id };
+});
+
+
+// ============================================
 // SCHEDULED PRODUCT FETCH & PRICE ALERTS
 // ============================================
 

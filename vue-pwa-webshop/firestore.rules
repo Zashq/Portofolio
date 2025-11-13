@@ -2,7 +2,6 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper functions
     function isSignedIn() {
       return request.auth != null;
     }
@@ -11,19 +10,16 @@ service cloud.firestore {
       return request.auth.uid == userId;
     }
     
-    // Products - read for all, write for authenticated users
     match /products/{productId} {
       allow read: if true;
       allow write: if isSignedIn();
     }
     
-    // Price history - read for authenticated, write only by server
     match /priceHistory/{historyId} {
       allow read: if isSignedIn();
       allow write: if false; // Only Firebase Functions can write
     }
     
-    // User data - only owner can access
     match /users/{userId} {
       allow read: if isSignedIn() && isOwner(userId);
       allow create: if isSignedIn() && isOwner(userId);
@@ -31,12 +27,10 @@ service cloud.firestore {
       allow delete: if false; // Users cannot delete themselves
     }
     
-    // Carts - only owner can access
     match /carts/{userId} {
       allow read, write: if isSignedIn() && isOwner(userId);
     }
     
-    // Orders - only owner can read, create during checkout
     match /orders/{orderId} {
       allow read: if isSignedIn() && 
                      resource.data.userId == request.auth.uid;
@@ -45,7 +39,6 @@ service cloud.firestore {
       allow update, delete: if false; // Orders are immutable
     }
     
-    // Price alerts - only owner can access
     match /priceAlerts/{alertId} {
       allow read: if isSignedIn() && 
                      resource.data.userId == request.auth.uid;
@@ -57,7 +50,6 @@ service cloud.firestore {
                        resource.data.userId == request.auth.uid;
     }
     
-    // Notifications - only owner can read
     match /notifications/{notificationId} {
       allow read: if isSignedIn() && 
                      resource.data.userId == request.auth.uid;
@@ -66,13 +58,11 @@ service cloud.firestore {
       allow create, delete: if false; // Only Firebase Functions can create/delete
     }
     
-    // Analytics - read for authenticated (aggregated data)
     match /analytics/{date} {
       allow read: if isSignedIn();
       allow write: if false; // Only Firebase Functions can write
     }
     
-    // Metadata - read for all
     match /metadata/{doc} {
       allow read: if true;
       allow write: if false; // Only Firebase Functions can write

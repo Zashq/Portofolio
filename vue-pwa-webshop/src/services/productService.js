@@ -163,7 +163,7 @@ class ProductService {
         
         const updatedProducts = products.map(product => ({
           ...product,
-          price: product.price * (0.95 + Math.random() * 0.1), // ±5% price variation
+          price: product.price * (0.95 + Math.random() * 0.1),
           lastUpdated: new Date().toISOString()
         }))
         
