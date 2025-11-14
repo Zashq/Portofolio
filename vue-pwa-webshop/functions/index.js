@@ -297,3 +297,40 @@ async function checkAndNotifyPriceAlerts(productId, productTitle, productImage, 
     console.error('Error checking price alerts:', error);
   }
 }
+
+exports.deleteUserAccount = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
+  }
+
+  const uid = context.auth.uid;
+
+  try {
+    await db.collection('users').doc(uid).delete().catch(() => {});
+    await db.collection('carts').doc(uid).delete().catch(() => {});
+    await db.collection('analytics_users').doc(uid).delete().catch(() => {});
+
+    const ordersSnap = await db.collection('orders').where('userId', '==', uid).get();
+    for (const doc of ordersSnap.docs) {
+      await doc.ref.delete();
+    }
+
+    const alertsSnap = await db.collection('priceAlerts').where('userId', '==', uid).get();
+    for (const doc of alertsSnap.docs) {
+      await doc.ref.delete();
+    }
+
+    const notifSnap = await db.collection('notifications').where('userId', '==', uid).get();
+    for (const doc of notifSnap.docs) {
+      await doc.ref.delete();
+    }
+
+    await admin.auth().deleteUser(uid);
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting user account:', error);
+    throw new functions.https.HttpsError('internal', 'Failed to delete account');
+  }
+});
+
