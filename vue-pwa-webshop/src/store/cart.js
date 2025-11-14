@@ -20,17 +20,6 @@ export const useCartStore = defineStore('cart', () => {
       return sum + ((item.price || 0) * (item.quantity || 0))
     }, 0)
     
-    console.log(' Subtotal calculation:', {
-      itemsCount: items.value.length,
-      subtotal: total,
-      items: items.value.map(i => ({
-        title: i.title,
-        price: i.price,
-        quantity: i.quantity,
-        total: i.price * i.quantity
-      }))
-    })
-    
     return total
   })
 

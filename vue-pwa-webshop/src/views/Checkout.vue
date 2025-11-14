@@ -209,9 +209,9 @@
       </v-col>
 
       <!-- Order Summary -->
-      <v-col cols="12" md="4">
-        <v-card>
-          <v-card-title>Order Summary</v-card-title>
+    <v-col cols="12" md="4" v-if="step !== 3">
+      <v-card>
+        <v-card-title>Order Summary</v-card-title>
           <v-divider></v-divider>
           <v-card-text>
             <!-- Cart Items -->
