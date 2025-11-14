@@ -42,7 +42,9 @@
                     label="Email"
                     type="email"
                     outlined
-                    required
+                    readonly
+                    disabled
+                    prepend-inner-icon="mdi-email"
                   ></v-text-field>
 
                   <v-text-field
@@ -77,6 +79,14 @@
                       ></v-text-field>
                     </v-col>
                   </v-row>
+                  <v-autocomplete
+                    v-model="shippingInfo.country"
+                    :items="countryList"
+                    label="Country"
+                    outlined
+                    clearable
+                    required
+                  ></v-autocomplete>
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
@@ -261,11 +271,14 @@ import { loadStripe } from '@stripe/stripe-js'
 import { functions, db, auth } from '@/main'
 import { httpsCallable } from 'firebase/functions'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+import { useUserStore } from '@/store/user'
 
 export default {
   name: 'CheckoutView',
+
   
   setup() {
+
     const router = useRouter()
     const cartStore = useCartStore()
     const toast = useToast()
@@ -275,6 +288,7 @@ export default {
     const stripeReady = ref(false)
     const cardError = ref('')
     const orderId = ref('')
+    
     
     let stripe = null
     let elements = null
@@ -286,8 +300,59 @@ export default {
       phone: '',
       address: '',
       city: '',
-      zipCode: ''
+      zipCode: '',
+      country: ""
     })
+
+    const countryList = [
+      "Afghanistan", "Albania", "Algeria", "Andorra", "Angola",
+      "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan",
+      "Bahamas", "Bahrain", "Bangladesh", "Belarus", "Belgium",
+      "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina",
+      "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso",
+      "Burundi", "Cambodia", "Cameroon", "Canada", "Cape Verde",
+      "Central African Republic", "Chad", "Chile", "China", "Colombia",
+      "Comoros", "Costa Rica", "Croatia", "Cuba", "Cyprus",
+      "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic",
+      "Ecuador", "Egypt", "El Salvador", "Estonia", "Ethiopia",
+      "Fiji", "Finland", "France", "Gabon", "Gambia",
+      "Georgia", "Germany", "Ghana", "Greece", "Grenada",
+      "Guatemala", "Guinea", "Haiti", "Honduras", "Hungary",
+      "Iceland", "India", "Indonesia", "Iran", "Iraq",
+      "Ireland", "Israel", "Italy", "Jamaica", "Japan",
+      "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait",
+      "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho",
+      "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg",
+      "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali",
+      "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico",
+      "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro",
+      "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru",
+      "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger",
+      "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman",
+      "Pakistan", "Panama", "Papua New Guinea", "Paraguay", "Peru",
+      "Philippines", "Poland", "Portugal", "Qatar", "Romania",
+      "Russia", "Rwanda", "Samoa", "San Marino", "Saudi Arabia",
+      "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore",
+      "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa",
+      "South Korea", "Spain", "Sri Lanka", "Sudan", "Suriname",
+      "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan",
+      "Tanzania", "Thailand", "Togo", "Tonga", "Trinidad and Tobago",
+      "Tunisia", "Turkey", "Turkmenistan", "Uganda", "Ukraine",
+      "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan",
+      "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen",
+      "Zambia", "Zimbabwe"
+    ]
+
+    const userStore = useUserStore()
+    const user = computed(() => userStore.user)
+
+    onMounted(() => {
+      if (user.value?.email) {
+        shippingInfo.value.email = user.value.email
+      }
+    })
+
+
 
     const tax = computed(() => cartStore.total * 0.1)
     const grandTotal = computed(() => cartStore.total + 5.00 + tax.value)
@@ -506,6 +571,7 @@ export default {
       cardError,
       orderId,
       shippingInfo,
+      countryList,
       cartStore,
       tax,
       grandTotal,
