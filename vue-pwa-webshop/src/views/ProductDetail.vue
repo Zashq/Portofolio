@@ -35,7 +35,7 @@
           
           <div class="d-flex align-center mb-4">
             <span class="text-h3 text-primary font-weight-bold">
-              ${{ product.price.toFixed(2) }}
+              €{{ product.price.toFixed(2) }}
             </span>
             <v-chip 
               v-if="product.rating" 
@@ -111,13 +111,13 @@
             </p>
 
             <v-alert type="info" variant="tonal" density="compact" class="mb-4">
-              Current price: <strong>${{ product.price.toFixed(2) }}</strong>
+              Current price: <strong>€{{ product.price.toFixed(2) }}</strong>
             </v-alert>
 
             <v-text-field
               v-model.number="targetPrice"
               label="Target Price"
-              prefix="$"
+              prefix="€"
               type="number"
               step="0.01"
               outlined

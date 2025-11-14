@@ -61,10 +61,10 @@
       
       <div class="price-section">
         <span v-if="isOnSale" class="text-decoration-line-through text-grey mr-2">
-          ${{ originalPrice }}
+          €{{ originalPrice }}
         </span>
         <span class="text-h6 font-weight-bold">
-          ${{ currentPrice }}
+          €{{ currentPrice }}
         </span>
       </div>
     </v-card-text>
@@ -114,7 +114,7 @@ export default {
     
     const salePercentage = computed(() => {
       if (!isOnSale.value) return 0
-  return Math.floor(Math.random() * 30) + 10
+      return Math.floor(Math.random() * 30) + 10
     })
     
     const originalPrice = computed(() => {

@@ -18,7 +18,7 @@
               </template>
               <v-list-item-title>{{ item.title }}</v-list-item-title>
               <v-list-item-subtitle>
-                Qty: {{ item.quantity }} x ${{ item.price }}
+                Qty: {{ item.quantity }} x €{{ item.price }}
               </v-list-item-subtitle>
               <template v-slot:append>
                 <v-btn icon color="error" @click="removeItem(item.id)">
@@ -35,15 +35,15 @@
           <v-card-text>
             <div class="d-flex justify-space-between mb-2">
               <span>Subtotal:</span>
-              <span>${{ subtotal.toFixed(2) }}</span>
+              <span>€{{ subtotal.toFixed(2) }}</span>
             </div>
             <div class="d-flex justify-space-between mb-2">
               <span>Tax:</span>
-              <span>${{ tax.toFixed(2) }}</span>
+              <span>€{{ tax.toFixed(2) }}</span>
             </div>
             <div class="d-flex justify-space-between font-weight-bold">
               <span>Total:</span>
-              <span>${{ total.toFixed(2) }}</span>
+              <span>€{{ total.toFixed(2) }}</span>
             </div>
             <v-btn color="primary" block class="mt-4" to="/checkout">Proceed to Checkout</v-btn>
           </v-card-text>

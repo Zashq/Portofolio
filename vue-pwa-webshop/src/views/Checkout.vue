@@ -162,7 +162,7 @@
                     @click="processPayment"
                   >
                     <v-icon start>mdi-lock</v-icon>
-                    Pay ${{ grandTotal.toFixed(2) }}
+                    Pay €{{ grandTotal.toFixed(2) }}
                   </v-btn>
                 </v-card-actions>
               </v-card>
@@ -218,7 +218,7 @@
                   <div class="text-caption">Qty: {{ item.quantity }}</div>
                 </div>
                 <div class="font-weight-bold">
-                  ${{ (item.price * item.quantity).toFixed(2) }}
+                  €{{ (item.price * item.quantity).toFixed(2) }}
                 </div>
               </div>
             </div>
@@ -228,22 +228,22 @@
             <!-- Totals -->
             <div class="d-flex justify-space-between mb-2">
               <span>Subtotal</span>
-              <span>${{ cartStore.total.toFixed(2) }}</span>
+              <span>€{{ cartStore.total.toFixed(2) }}</span>
             </div>
             <div class="d-flex justify-space-between mb-2">
               <span>Shipping</span>
-              <span>$5.00</span>
+              <span>€5.00</span>
             </div>
             <div class="d-flex justify-space-between mb-2">
               <span>Tax (10%)</span>
-              <span>${{ tax.toFixed(2) }}</span>
+              <span>€{{ tax.toFixed(2) }}</span>
             </div>
 
             <v-divider class="my-4"></v-divider>
 
             <div class="d-flex justify-space-between text-h6 font-weight-bold">
               <span>Total</span>
-              <span>${{ grandTotal.toFixed(2) }}</span>
+              <span>€{{ grandTotal.toFixed(2) }}</span>
             </div>
           </v-card-text>
         </v-card>

@@ -1,5 +1,3 @@
-// functions/index.js - Updated with proper Stripe integration
-
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const axios = require('axios');
@@ -10,24 +8,16 @@ admin.initializeApp();
 const db = admin.firestore();
 const messaging = admin.messaging();
 
-// ============================================
 // STRIPE PAYMENT FUNCTIONS
-// ============================================
 
-/**
- * Create Stripe Checkout Session with line items
- * This is the proper way to handle Stripe payments
- */
 exports.createCheckoutSession = functions.https.onCall(async (data, context) => {
   try {
     const { items, shipping, successUrl, cancelUrl } = data;
     
-    // Validate items
     if (!items || !Array.isArray(items) || items.length === 0) {
       throw new functions.https.HttpsError('invalid-argument', 'Items are required');
     }
 
-    // Convert cart items to Stripe line items
     const lineItems = items.map(item => ({
       price_data: {
         currency: 'usd',
@@ -36,24 +26,22 @@ exports.createCheckoutSession = functions.https.onCall(async (data, context) => 
           images: [item.image],
           description: item.description || '',
         },
-        unit_amount: Math.round(item.price * 100), // Convert to cents
+        unit_amount: Math.round(item.price * 100), 
       },
       quantity: item.quantity,
     }));
 
-    // Add shipping as a line item
     lineItems.push({
       price_data: {
         currency: 'usd',
         product_data: {
           name: 'Shipping',
         },
-        unit_amount: 500, // $5.00 in cents
+        unit_amount: 500, 
       },
       quantity: 1,
     });
 
-    // Create Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: lineItems,
@@ -62,7 +50,7 @@ exports.createCheckoutSession = functions.https.onCall(async (data, context) => 
       cancel_url: cancelUrl || 'https://yourdomain.com/checkout',
       customer_email: shipping?.email,
       shipping_address_collection: {
-        allowed_countries: ['US', 'CA', 'GB', 'RO'], // Add countries as needed
+        allowed_countries: ['US', 'CA', 'GB', 'RO'], 
       },
       metadata: {
         userId: context.auth?.uid || 'guest',
@@ -83,9 +71,7 @@ exports.createCheckoutSession = functions.https.onCall(async (data, context) => 
   }
 });
 
-/**
- * Alternative: Create Payment Intent (for custom checkout form)
- */
+
 exports.createPaymentIntent = functions.https.onCall(async (data, context) => {
   try {
     const { items, shipping } = data;
@@ -94,15 +80,13 @@ exports.createPaymentIntent = functions.https.onCall(async (data, context) => {
       throw new functions.https.HttpsError('invalid-argument', 'Items are required');
     }
 
-    // Calculate total from items
     const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const shippingCost = 5.00;
     const tax = subtotal * 0.1;
     const total = subtotal + shippingCost + tax;
 
-    // Create payment intent
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(total * 100), // Convert to cents
+      amount: Math.round(total * 100),
       currency: 'usd',
       metadata: {
         userId: context.auth?.uid || 'guest',
@@ -138,12 +122,10 @@ exports.stripeWebhook = functions.https.onRequest(async (req, res) => {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // Handle the event
   switch (event.type) {
     case 'checkout.session.completed':
       const session = event.data.object;
       
-      // Save order to Firestore
       const orderData = JSON.parse(session.metadata.orderData);
       await db.collection('orders').add({
         userId: session.metadata.userId,
@@ -172,9 +154,7 @@ exports.stripeWebhook = functions.https.onRequest(async (req, res) => {
   res.json({ received: true });
 });
 
-// ============================================
 // PRICE ALERT CREATION
-// ============================================
 
 exports.createPriceAlert = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
@@ -204,16 +184,13 @@ exports.createPriceAlert = functions.https.onCall(async (data, context) => {
     lastNotifiedAt: null,
     productTitle: productTitle || null,
     productImage: productImage || null
-    // ide rakhatsz email mezőt is későbbi e-mail értesítéshez
   });
 
   return { id: alertRef.id };
 });
 
 
-// ============================================
 // SCHEDULED PRODUCT FETCH & PRICE ALERTS
-// ============================================
 
 exports.scheduledProductFetch = functions.pubsub
   .schedule('every 60 minutes')
@@ -232,14 +209,12 @@ exports.scheduledProductFetch = functions.pubsub
         const prevDoc = await productRef.get();
         const prevData = prevDoc.data();
         
-        // Update product
         batch.set(productRef, {
           ...product,
           lastUpdated: timestamp,
           fetchedAt: new Date().toISOString()
         }, { merge: true });
         
-        // Store price history
         const historyRef = db.collection('priceHistory').doc();
         batch.set(historyRef, {
           productId: product.id,
@@ -247,7 +222,6 @@ exports.scheduledProductFetch = functions.pubsub
           timestamp: new Date().toISOString()
         });
         
-        // Check for price drops
         if (prevData && prevData.price > product.price) {
           const priceDrop = prevData.price - product.price;
           const percentDrop = (priceDrop / prevData.price) * 100;
@@ -295,7 +269,6 @@ async function checkAndNotifyPriceAlerts(productId, productTitle, productImage, 
     for (const doc of alertsSnapshot.docs) {
       const alert = doc.data();
       
-      // Create notification
       await db.collection('notifications').add({
         userId: alert.userId,
         type: 'price_drop',
@@ -313,7 +286,6 @@ async function checkAndNotifyPriceAlerts(productId, productTitle, productImage, 
         }
       });
 
-      // Mark alert as triggered
       await doc.ref.update({
         triggeredAt: admin.firestore.FieldValue.serverTimestamp(),
         active: false
