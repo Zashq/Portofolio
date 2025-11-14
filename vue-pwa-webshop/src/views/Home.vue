@@ -194,7 +194,7 @@ export default {
       {
         icon: 'mdi-truck-delivery',
         title: 'Free Shipping',
-        description: 'Free delivery on orders over $50'
+        description: 'Free delivery on orders over €50'
       },
       {
         icon: 'mdi-shield-check',
@@ -232,7 +232,6 @@ export default {
         return
       }
       
-      // Here you would normally save to Firebase
       toast.success('Successfully subscribed to newsletter!')
       email.value = ''
     }

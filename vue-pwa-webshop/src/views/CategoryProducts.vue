@@ -34,7 +34,7 @@
           type="number"
           outlined
           dense
-          prefix="$"
+          prefix="€"
         ></v-text-field>
       </v-col>
       <v-col cols="12" md="3">
@@ -44,7 +44,7 @@
           type="number"
           outlined
           dense
-          prefix="$"
+          prefix="€"
         ></v-text-field>
       </v-col>
       <v-col cols="12" md="3">
