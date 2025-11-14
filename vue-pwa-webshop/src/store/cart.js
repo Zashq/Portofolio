@@ -4,23 +4,39 @@ import { db } from '@/main'
 import { doc, setDoc, getDoc } from 'firebase/firestore'
 import { useUserStore } from './user'
 
+const isBrowser = typeof window !== 'undefined'
+
 export const useCartStore = defineStore('cart', () => {
   const items = ref([])
   const loading = ref(false)
 
-  const itemsCount = computed(() =>
-    items.value.reduce((total, item) => total + (item.quantity || 0), 0)
-  )
 
-  const subtotal = computed(() =>
-    items.value.reduce((total, item) => total + (item.price || 0) * (item.quantity || 0), 0)
-  )
+  const itemsCount = computed(() => {
+    return items.value.reduce((total, item) => total + (item.quantity || 0), 0)
+  })
 
-  const tax = computed(() => subtotal.value * 0.08)
-  const shipping = computed(() => (subtotal.value > 50 ? 0 : 10))
-  const total = computed(() => subtotal.value + tax.value + shipping.value)
+  const subtotal = computed(() => {
+    const total = items.value.reduce((sum, item) => {
+      return sum + ((item.price || 0) * (item.quantity || 0))
+    }, 0)
+    
+    console.log(' Subtotal calculation:', {
+      itemsCount: items.value.length,
+      subtotal: total,
+      items: items.value.map(i => ({
+        title: i.title,
+        price: i.price,
+        quantity: i.quantity,
+        total: i.price * i.quantity
+      }))
+    })
+    
+    return total
+  })
 
   const saveCartLocally = () => {
+    if (!isBrowser) return
+    
     try {
       localStorage.setItem('cart', JSON.stringify(items.value))
     } catch (e) {
@@ -31,11 +47,18 @@ export const useCartStore = defineStore('cart', () => {
   const loadCart = async () => {
     const userStore = useUserStore()
 
-    // Try to load from localStorage first
-    const localCart = localStorage.getItem('cart')
-    if (localCart) items.value = JSON.parse(localCart)
+    if (isBrowser) {
+      try {
+        const localCart = localStorage.getItem('cart')
+        if (localCart) {
+          items.value = JSON.parse(localCart)
+          console.log(' Cart loaded from localStorage:', items.value.length, 'items')
+        }
+      } catch (e) {
+        console.error('Error loading cart from localStorage:', e)
+      }
+    }
 
-    // If authenticated, sync with Firestore
     if (userStore.isAuthenticated && userStore.user) {
       try {
         loading.value = true
@@ -43,6 +66,7 @@ export const useCartStore = defineStore('cart', () => {
         if (cartDoc.exists()) {
           items.value = cartDoc.data().items || []
           saveCartLocally()
+          console.log(' Cart loaded from Firestore:', items.value.length, 'items')
         }
       } catch (error) {
         console.error('Error loading cart from Firestore:', error)
@@ -54,10 +78,9 @@ export const useCartStore = defineStore('cart', () => {
 
   const saveCart = async () => {
     const userStore = useUserStore()
-    // Save to localStorage first
-    saveCartLocally()
+    
+        saveCartLocally()
 
-    // Save to Firestore if authenticated
     if (userStore.isAuthenticated && userStore.user) {
       try {
         await setDoc(doc(db, 'carts', userStore.user.uid), {
@@ -72,6 +95,7 @@ export const useCartStore = defineStore('cart', () => {
 
   const addItem = async (product) => {
     const existingItem = items.value.find((item) => item.id === product.id)
+    
     if (existingItem) {
       existingItem.quantity = (existingItem.quantity || 0) + 1
     } else {
@@ -116,6 +140,7 @@ export const useCartStore = defineStore('cart', () => {
     await saveCart()
   }
 
+
   const addToHistory = async (product) => {
     const userStore = useUserStore()
     if (!userStore.isAuthenticated || !userStore.user) return
@@ -141,14 +166,12 @@ export const useCartStore = defineStore('cart', () => {
     return categories
   })
 
+
   return {
     items,
     loading,
     itemsCount,
-    subtotal,
-    tax,
-    shipping,
-    total,
+    subtotal,           
     loadCart,
     addItem,
     updateQuantity,

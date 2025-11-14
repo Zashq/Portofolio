@@ -238,14 +238,14 @@
             <!-- Totals -->
             <div class="d-flex justify-space-between mb-2">
               <span>Subtotal</span>
-              <span>€{{ cartStore.total.toFixed(2) }}</span>
+              <span>€{{ cartStore.subtotal.toFixed(2) }}</span>
             </div>
             <div class="d-flex justify-space-between mb-2">
               <span>Shipping</span>
-              <span>€5.00</span>
+              <span>€{{ shippingCost.toFixed(2) }}</span>
             </div>
             <div class="d-flex justify-space-between mb-2">
-              <span>Tax (10%)</span>
+              <span>Tax ({{ taxRate * 100 }}%)</span>
               <span>€{{ tax.toFixed(2) }}</span>
             </div>
 
@@ -275,10 +275,8 @@ import { useUserStore } from '@/store/user'
 
 export default {
   name: 'CheckoutView',
-
   
   setup() {
-
     const router = useRouter()
     const cartStore = useCartStore()
     const toast = useToast()
@@ -288,7 +286,6 @@ export default {
     const stripeReady = ref(false)
     const cardError = ref('')
     const orderId = ref('')
-    
     
     let stripe = null
     let elements = null
@@ -301,46 +298,47 @@ export default {
       address: '',
       city: '',
       zipCode: '',
-      country: ""
+      country: ''
     })
-
+    
     const countryList = [
       "Afghanistan", "Albania", "Algeria", "Andorra", "Angola",
-      "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan",
-      "Bahamas", "Bahrain", "Bangladesh", "Belarus", "Belgium",
-      "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina",
-      "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso",
-      "Burundi", "Cambodia", "Cameroon", "Canada", "Cape Verde",
-      "Central African Republic", "Chad", "Chile", "China", "Colombia",
-      "Comoros", "Costa Rica", "Croatia", "Cuba", "Cyprus",
-      "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic",
-      "Ecuador", "Egypt", "El Salvador", "Estonia", "Ethiopia",
+      "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria",
+      "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados",
+      "Belarus", "Belgium", "Belize", "Benin", "Bhutan",
+      "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei",
+      "Bulgaria", "Burkina Faso", "Burundi", "Cambodia", "Cameroon",
+      "Canada", "Cape Verde", "Central African Republic", "Chad", "Chile",
+      "China", "Colombia", "Comoros", "Congo", "Costa Rica",
+      "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark",
+      "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt",
+      "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia",
       "Fiji", "Finland", "France", "Gabon", "Gambia",
       "Georgia", "Germany", "Ghana", "Greece", "Grenada",
-      "Guatemala", "Guinea", "Haiti", "Honduras", "Hungary",
-      "Iceland", "India", "Indonesia", "Iran", "Iraq",
-      "Ireland", "Israel", "Italy", "Jamaica", "Japan",
-      "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait",
-      "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho",
-      "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg",
-      "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali",
-      "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico",
-      "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro",
-      "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru",
-      "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger",
-      "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman",
-      "Pakistan", "Panama", "Papua New Guinea", "Paraguay", "Peru",
-      "Philippines", "Poland", "Portugal", "Qatar", "Romania",
-      "Russia", "Rwanda", "Samoa", "San Marino", "Saudi Arabia",
-      "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore",
-      "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa",
-      "South Korea", "Spain", "Sri Lanka", "Sudan", "Suriname",
-      "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan",
-      "Tanzania", "Thailand", "Togo", "Tonga", "Trinidad and Tobago",
-      "Tunisia", "Turkey", "Turkmenistan", "Uganda", "Ukraine",
-      "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan",
-      "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen",
-      "Zambia", "Zimbabwe"
+      "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti",
+      "Honduras", "Hungary", "Iceland", "India", "Indonesia",
+      "Iran", "Iraq", "Ireland", "Israel", "Italy",
+      "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya",
+      "Kiribati", "Kosovo", "Kuwait", "Kyrgyzstan", "Laos",
+      "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya",
+      "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi",
+      "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands",
+      "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova",
+      "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique",
+      "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands",
+      "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea",
+      "North Macedonia", "Norway", "Oman", "Pakistan", "Panama",
+      "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland",
+      "Portugal", "Qatar", "Romania", "Russia", "Rwanda",
+      "Samoa", "San Marino", "Saudi Arabia", "Senegal", "Serbia",
+      "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia",
+      "Solomon Islands", "Somalia", "South Africa", "South Korea", "Spain",
+      "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland",
+      "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand",
+      "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey",
+      "Turkmenistan", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom",
+      "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City",
+      "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
     ]
 
     const userStore = useUserStore()
@@ -353,9 +351,15 @@ export default {
     })
 
 
+    const shippingCost = ref(5.00)
+    const taxRate = ref(0.10)
+    
 
-    const tax = computed(() => cartStore.total * 0.1)
-    const grandTotal = computed(() => cartStore.total + 5.00 + tax.value)
+      const tax = computed(() => cartStore.subtotal * taxRate.value)
+
+    const grandTotal = computed(() => 
+      cartStore.subtotal + shippingCost.value + tax.value
+    )
 
     const continueToPayment = async () => {
       if (!shippingInfo.value.name || !shippingInfo.value.email || 
@@ -368,22 +372,16 @@ export default {
       step.value = 2
       
       await nextTick()
-      setTimeout(() => {
-        initStripe()
-      }, 300)
+      await initializeStripe()
     }
 
-    const initStripe = async () => {
+    const initializeStripe = async () => {
       try {
-        console.log('Initializing Stripe...')
-        stripeReady.value = false
+        console.log('\n=== STRIPE INITIALIZATION START ===')
+        console.log('1. Loading Stripe...')
         
-        const stripeKey = process.env.VUE_APP_STRIPE_PUBLISHABLE_KEY
-        if (!stripeKey) {
-          throw new Error('Stripe key not configured')
-        }
-
-        stripe = await loadStripe(stripeKey)
+        stripe = await loadStripe(process.env.VUE_APP_STRIPE_PUBLISHABLE_KEY)
+        
         if (!stripe) {
           throw new Error('Failed to load Stripe')
         }
@@ -447,12 +445,6 @@ export default {
       cardError.value = ''
 
       try {
-        console.log('=== PAYMENT DEBUG START ===')
-        console.log('1. Initial state:')
-        console.log('   - Stripe:', !!stripe)
-        console.log('   - Card element:', !!cardElement)
-        console.log('   - Stripe ready:', stripeReady.value)
-        console.log('   - Container in DOM:', !!document.getElementById('card-element'))
         
         console.log('\n2. Creating payment intent...')
         
@@ -466,16 +458,15 @@ export default {
             quantity: item.quantity,
             image: item.image
           })),
-          shipping: shippingInfo.value
+          shipping: shippingInfo.value,
+          subtotal: cartStore.subtotal,
+          shippingCost: shippingCost.value,
+          tax: tax.value,
+          total: grandTotal.value
         })
 
         const { clientSecret } = response.data
         console.log('   ✅ Payment intent created')
-        
-        console.log('\n3. Pre-confirmation checks:')
-        console.log('   - Card element exists:', !!cardElement)
-        console.log('   - Container in DOM:', !!document.getElementById('card-element'))
-        console.log('   - Container has iframe:', !!document.getElementById('card-element')?.querySelector('iframe'))
 
         console.log('\n4. Confirming payment...')
         
@@ -512,8 +503,8 @@ export default {
             paymentIntentId: result.paymentIntent.id,
             items: cartStore.items,
             shipping: shippingInfo.value,
-            subtotal: cartStore.total,
-            shippingCost: 5.00,
+            subtotal: cartStore.subtotal,
+            shippingCost: shippingCost.value,
             tax: tax.value,
             total: grandTotal.value,
             status: 'paid',
@@ -527,16 +518,7 @@ export default {
           toast.success('Payment successful!')
         }
       } catch (error) {
-        console.error('=== PAYMENT ERROR ===')
-        console.error('Error:', error)
-        console.error('Error message:', error.message)
-        
-        console.log('\nElement state on error:')
-        console.log('- Stripe:', !!stripe)
-        console.log('- Card element:', !!cardElement)
-        console.log('- Container in DOM:', !!document.getElementById('card-element'))
-        console.log('- Container visible:', document.getElementById('card-element-container')?.style.display)
-        console.log('===================\n')
+
         
         cardError.value = error.message
         toast.error(error.message || 'Payment failed')
@@ -573,6 +555,8 @@ export default {
       shippingInfo,
       countryList,
       cartStore,
+      shippingCost,
+      taxRate,
       tax,
       grandTotal,
       continueToPayment,
