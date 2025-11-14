@@ -17,10 +17,10 @@
           >
             <div class="d-flex fill-height justify-center align-center">
               <div class="text-center">
-                <h1 class="text-h2 font-weight-bold white--text mb-4">
+                <h1 class="text-h2 font-weight-bold text-white mb-4">
                   {{ slide.title }}
                 </h1>
-                <p class="text-h5 white--text">
+                <p class="text-h5 text-white">
                   {{ slide.subtitle }}
                 </p>
                 <v-btn
